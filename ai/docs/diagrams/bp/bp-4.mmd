@@ -1,0 +1,24 @@
+graph TD
+    JRN["<b>Journal</b><br/><i>in a Batch</i>"]
+    VAL{{"Validation"}}
+    POST["<b>Post</b>"]
+    PG["<b>Posting Groups</b><br/>Gen Business + Gen Product<br/>VAT Business + VAT Product"]
+    TAG["<b>Tags</b><br/>Posting Type,<br/>Document Type"]
+    GL["General Ledger<br/>(CoA)"]
+    VAT["VAT Entries"]
+    SUB["Sub-Ledgers<br/><i>Customer, Vendor,<br/>Bank, FA, Project</i>"]
+
+    JRN --> VAL --> POST
+    POST --> PG
+    POST --> TAG
+    PG --> GL
+    PG --> VAT
+    TAG --> SUB
+
+    style JRN fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style POST fill:#E74C3C,stroke:#0E474E,stroke-width:2px,color:#fff
+    style PG fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style TAG fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style GL fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
+    style VAT fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
+    style SUB fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff

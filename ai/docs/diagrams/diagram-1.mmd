@@ -1,0 +1,16 @@
+graph TD
+    L0["<b>Layer 0</b><br/><i>Number Series</i>"]
+    L1["<b>Layer 1</b><br/><i>Chart of Accounts</i>"]
+    L2["<b>Layer 2</b><br/><i>Posting Groups</i><br/>(General + VAT,<br/>Business + Product,<br/>Customer, Project)"]
+    L3["<b>Layer 3</b><br/><i>Master Data</i><br/>(Customers, Items,<br/>Resources, Employees)"]
+    L4["<b>Layer 4</b><br/><i>Project</i>"]
+    L5["<b>Layer 5</b><br/><i>Project Journal →<br/>Project Invoice</i>"]
+
+    L0 --> L1 --> L2 --> L3 --> L4 --> L5
+
+    style L0 fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style L1 fill:#E74C3C,stroke:#0E474E,stroke-width:2px,color:#fff
+    style L2 fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
+    style L3 fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style L4 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style L5 fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff

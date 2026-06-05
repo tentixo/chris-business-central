@@ -1,0 +1,18 @@
+graph TD
+    CUST["<b>Customer</b>"] -->|"Bill-to"| PROJ["<b>Project</b>"]
+    PROJ --> T1["Task: Pre-study"]
+    PROJ --> T2["Task: Execution"]
+    PROJ --> T3["Task: Post-delivery"]
+    T1 --> PL1["Planning Lines<br/><i>Billable + Budget</i>"]
+    T2 --> PL2["Planning Lines<br/><i>Billable + Budget</i>"]
+    T3 --> PL3["Planning Lines<br/><i>Billable + Budget</i>"]
+    PL1 -->|"Create Sales Invoice"| INV["<b>Invoice</b>"]
+    PL2 -->|"Create Sales Invoice"| INV
+    PL3 -->|"Create Sales Invoice"| INV
+
+    style CUST fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style PROJ fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style T1 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style T2 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style T3 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style INV fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff

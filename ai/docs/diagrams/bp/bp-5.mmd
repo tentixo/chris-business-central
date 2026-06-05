@@ -1,0 +1,31 @@
+graph LR
+    subgraph Finance
+        GL["<b>General Ledger</b><br/><i>AR, AP, Cash,<br/>Budget, Cost Acc.</i>"]
+        FA["Fixed Assets"]
+    end
+
+    subgraph Commercial
+        MKT["Marketing"] --> SALES["Sales"] --> ORD["Order"]
+    end
+
+    subgraph Supply
+        PUR["Purchase"] --> PLAN["Planning"] --> WH["Warehouse"]
+        WH --> INV_S["Inventory"]
+    end
+
+    subgraph Services
+        RES["Resources"] --> PROJ["<b>Projects</b>"]
+        PROJ --> SVC["Service Mgmt"]
+        PROJ --> SUB["Subscription<br/>Billing"]
+    end
+
+    ORD -.-> GL
+    PROJ -.-> GL
+    PUR -.-> GL
+
+    style GL fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style PROJ fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style RES fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style FA fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#E0F7FA
+    style ORD fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style WH fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff

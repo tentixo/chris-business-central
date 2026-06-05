@@ -1,0 +1,12 @@
+graph TD
+    IPG["Inventory<br/>Posting Group"] --> LOC["<b>Location</b>"]
+    LOC --> ZONE["Zone"]
+    ZONE --> BIN["Bin<br/><i>Fixed / Floating /<br/>(Adjustment)</i>"]
+    BIN --> PITEM["pItem"]
+    LOC -.->|"Directed:<br/>Bin Types +<br/>Bin mandatory"| BIN
+    ZONE ---|"Movement<br/>Worksheet"| ZONE
+
+    style LOC fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style ZONE fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style BIN fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style PITEM fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff

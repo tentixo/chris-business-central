@@ -1,0 +1,26 @@
+graph TD
+    subgraph EU
+        subgraph SE
+            GGRSE(("GGRSE"))
+            CUSTSE["Cust"]
+        end
+        subgraph DK
+            CUSTDK["Cust<br/>w/ VAT"]
+        end
+        GGRSE -->|"DOM"| CUSTSE
+        GGRSE -->|"ORG-EU"| CUSTDK
+    end
+    subgraph GB
+        GGRGB(("GGRGB"))
+        CUSTGB["Cust"]
+        GGRGB -->|"DOM"| CUSTGB
+    end
+    GGRSE -->|"EXP"| CUSTGB
+    GGRGB -->|"EXP"| CUSTSE
+    GGRGB -->|"EXP"| CUSTDK
+
+    style GGRSE fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style GGRGB fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style CUSTSE fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style CUSTGB fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style CUSTDK fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff

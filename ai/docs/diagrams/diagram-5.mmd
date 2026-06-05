@@ -1,0 +1,20 @@
+graph TD
+    VI["Vendor Invoice"] --> PJ["Purchase Journal"]
+    FAR["FA Register<br/><i>FA Class, Subclass,<br/>Location</i>"] --> PJ
+    INS["Insurance Register"] --> PJ
+    PJ --> POST["<b>Post</b>"]
+    POST --> GL["General Ledger<br/>(CoA)"]
+    POST --> VAT["VAT Entries"]
+    POST --> VL["Vendor Ledger"]
+    POST --> ICL["Insurance Coverage<br/>Ledger"]
+    POST --> FAL["FA Ledger"]
+
+    style POST fill:#E74C3C,stroke:#0E474E,stroke-width:2px,color:#fff
+    style GL fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
+    style VAT fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style VL fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style FAL fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
+    style ICL fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style VI fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style FAR fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style INS fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff

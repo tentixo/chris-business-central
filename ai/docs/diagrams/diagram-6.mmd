@@ -1,0 +1,23 @@
+graph TD
+    CUST["<b>Customer</b>"] -->|"Bill-to<br/>Customer No."| JOB["<b>Job Card</b><br/>(Project)"]
+    CUST ---|"Price"| ITEM["<b>Item</b>"]
+    JOB --> JTN["Job Task No."]
+    JTN --> PL["<b>Planning Lines</b><br/><i>Billable / Budget /<br/>Both</i>"]
+    PL -->|"Create Job<br/>Sales Invoice"| IL["Invoice Lines"]
+    IL --> IH["<b>Invoice Head</b><br/><i>Pre-posted → Posted</i>"]
+    IL --> IR["Item / Resource"]
+    JOB ---|"Price"| WT["Work Type"]
+    RES["<b>Resource</b><br/><i>IND / MACH</i>"] --> WT
+    RES --> RG["Resource Group"]
+    RG --> AVAIL["Availability"]
+    GLA["G/L Account"] -.-> PL
+    TS["Time Sheet"] -.->|"?"| PL
+    CAL["Calendar"] -.->|"?"| TS
+
+    style JOB fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style CUST fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style PL fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style IH fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
+    style RES fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
+    style ITEM fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style WT fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#E0F7FA

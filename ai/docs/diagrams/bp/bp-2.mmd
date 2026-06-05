@@ -1,0 +1,14 @@
+graph LR
+    WHO["<b>WHO</b><br/>Business Posting Group<br/><i>on the Customer</i>"]
+    WHAT["<b>WHAT</b><br/>Product Posting Group<br/><i>on the Item / Resource</i>"]
+    MATRIX["<b>General Posting Setup</b><br/><i>WHO × WHAT →<br/>G/L Account</i>"]
+    GL["<b>Correct G/L<br/>Account</b>"]
+
+    WHO --> MATRIX
+    WHAT --> MATRIX
+    MATRIX --> GL
+
+    style WHO fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style WHAT fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style MATRIX fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
+    style GL fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
