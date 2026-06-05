@@ -357,16 +357,17 @@ strong {{
 
 /* --- PAGE BREAK CONTROL --- */
 h2 {{
-    page-break-before: always;
     page-break-after: avoid;
-}}
-
-h2:first-of-type {{
-    page-break-before: avoid;
+    page-break-before: auto;
 }}
 
 h3, h4 {{
     page-break-after: avoid;
+}}
+
+/* Headings must keep at least 5 lines of content with them */
+h2 + *, h3 + *, h4 + * {{
+    page-break-before: avoid;
 }}
 
 /* Allow tables and diagrams to break across pages if needed */
