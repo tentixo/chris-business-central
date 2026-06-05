@@ -1,36 +1,22 @@
 graph LR
-    subgraph Finance
-        GL["<b>General Ledger</b><br/><i>Receivables, Payables,<br/>Cash Mgmt, G/L Budget,<br/>Cost Acc.</i>"]
-        FA["Fixed Assets"]
-        DOC["Documents"]
-        ITEM["Items"]
-        APR["Approval<br/>[Workflow]"]
-    end
+    GL["<b>General Ledger</b><br/><i>AR, AP, Cash,<br/>Budget, Cost Acc.</i>"]
+    FA["Fixed Assets"]
+    MKT["Marketing"] --> SALES["Sales"] --> ORD["Order"]
+    PUR["Purchase"] --> PLAN["Planning"] --> MFG["Manufacturing<br/><i>(Premium)</i>"]
+    MFG --> WH["Warehouse / Bin"] --> INV_S["Inventory"]
+    HR["HR"] --> RES["Resources<br/><i>Person / Machine</i>"] --> PROJ["<b>Projects</b>"]
+    PROJ --> SVC["Services<br/><i>(Premium)</i>"]
+    PROJ --> SUB["Subscription<br/>Billing"]
 
-    subgraph Sales
-        MKT["Marketing"] --> SALES["Sales"] --> ORD["Order"]
-    end
-
-    subgraph Supply Chain
-        PUR["Purchase"] --> PLAN["Planning"] --> MFG["Manufacturing<br/><i>(Premium)</i>"]
-        MFG --> WH["Warehouse / Bin"]
-        WH --> INV["Inventory"]
-    end
-
-    subgraph Services
-        HR["HR"] --> RES["Resources<br/><i>Person / Machine</i>"]
-        RES --> PROJ["Jobs<br/>[Projects]"]
-        PROJ --> SVC["Services<br/><i>(Premium)</i>"]
-        PROJ --> SUB["Subscription<br/>Billing"]
-    end
-
-    ITEM --> APR
+    ORD -.-> GL
+    PROJ -.-> GL
+    PUR -.-> GL
 
     style GL fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
-    style FA fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style FA fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#E0F7FA
     style PROJ fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
     style RES fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
-    style ITEM fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style ORD fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
     style MFG fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#E0F7FA
-    style WH fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#E0F7FA
+    style WH fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
     style SVC fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff

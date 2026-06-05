@@ -1,22 +1,65 @@
 #!/usr/bin/env python3
-"""Generate branded PDF from the BC Best Practice Playbook."""
+"""Generate branded Tentixo PDFs from markdown playbooks.
+
+Usage:
+    python3 ai/docs/generate-pdf.py client     # client-facing best practice playbook
+    python3 ai/docs/generate-pdf.py internal    # internal Tentixo playbook
+    python3 ai/docs/generate-pdf.py all         # both
+"""
 
 import re
+import sys
 import base64
 from pathlib import Path
 import markdown
 from weasyprint import HTML
 
 ROOT = Path("/Users/chris/PycharmProjects/chris-business-central")
-MD_PATH = ROOT / "ai/reports/bc-best-practice-playbook.md"
-DIAGRAM_DIR = ROOT / "ai/docs/diagrams/bp"
 GFX_DIR = ROOT / "gfx"
-OUT_PATH = ROOT / "ai/docs/bc-best-practice-playbook.pdf"
+
+CONFIGS = {
+    "client": {
+        "md": ROOT / "ai/reports/bc-best-practice-playbook.md",
+        "diagrams": ROOT / "ai/docs/diagrams/bp",
+        "diagram_prefix": "bp",
+        "out": ROOT / "ai/docs/bc-best-practice-playbook.pdf",
+        "cover_bg": "#00838F",
+        "cover_strip": "#006D75",
+        "cover_title": "Business Central<br>Best Practice Playbook",
+        "cover_subtitle": "Recommended patterns for setup, posting architecture,<br>and project management",
+        "meta": [
+            ("Version", "0.1 — Draft"),
+            ("Date", "June 2026"),
+            ("Classification", "Client Document"),
+            ("Author", "Tentixo AB"),
+        ],
+        "footer_text": "TENTIXO AB — CONFIDENTIAL",
+    },
+    "internal": {
+        "md": ROOT / "ai/reports/business-central-playbook.md",
+        "diagrams": ROOT / "ai/docs/diagrams",
+        "diagram_prefix": "diagram",
+        "out": ROOT / "ai/docs/business-central-playbook.pdf",
+        "cover_bg": "#1E3A45",
+        "cover_strip": "#00838F",
+        "cover_title": "Business Central<br>Tentixo Playbook",
+        "cover_subtitle": "Architecture, operations, bookkeeping,<br>and client engagement reference",
+        "meta": [
+            ("Version", "1.1"),
+            ("Updated", "June 2026"),
+            ("Classification", "Internal"),
+            ("Author", "Chris Mansson / Tentixo AB"),
+        ],
+        "footer_text": "TENTIXO AB — INTERNAL",
+    },
+}
+
 
 def img_to_data_uri(path):
     data = Path(path).read_bytes()
     b64 = base64.b64encode(data).decode()
     return f"data:image/png;base64,{b64}"
+
 
 def load_logo():
     logo_path = GFX_DIR / "tentixo_wordmark_white.png"
@@ -24,11 +67,13 @@ def load_logo():
         return img_to_data_uri(logo_path)
     return ""
 
-def convert_md_to_html(md_text):
+
+def convert_md_to_html(md_text, diagram_dir, diagram_prefix):
     counter = [0]
+
     def replace_mermaid(match):
         counter[0] += 1
-        img_path = DIAGRAM_DIR / f"bp-{counter[0]}.png"
+        img_path = diagram_dir / f"{diagram_prefix}-{counter[0]}.png"
         if img_path.exists():
             uri = img_to_data_uri(img_path)
             return f'<div class="diagram"><img src="{uri}" alt="Diagram {counter[0]}"></div>'
@@ -36,29 +81,34 @@ def convert_md_to_html(md_text):
 
     md_text = re.sub(r'```mermaid\n.*?```', replace_mermaid, md_text, flags=re.DOTALL)
 
-    # Remove the YAML-style header block (Version/Status/etc) - we put it on cover
+    # Remove the title and metadata block — we put it on cover
     md_text = re.sub(r'^# .*\n', '', md_text, count=1)
-    md_text = re.sub(r'^\*\*Version\*\*:.*\n', '', md_text, flags=re.MULTILINE)
-    md_text = re.sub(r'^\*\*Status\*\*:.*\n', '', md_text, flags=re.MULTILINE)
-    md_text = re.sub(r'^\*\*Created\*\*:.*\n', '', md_text, flags=re.MULTILINE)
-    md_text = re.sub(r'^\*\*Author\*\*:.*\n', '', md_text, flags=re.MULTILINE)
-    md_text = re.sub(r'^\*\*Scope\*\*:.*\n', '', md_text, flags=re.MULTILINE)
+    for field in ['Version', 'Status', 'Created', 'Updated', 'Author', 'Scope']:
+        md_text = re.sub(rf'^\*\*{field}\*\*:.*\n', '', md_text, flags=re.MULTILINE)
 
     html = markdown.markdown(md_text, extensions=['tables', 'fenced_code'])
     return html
 
-logo_uri = load_logo()
-md_text = MD_PATH.read_text()
-body_html = convert_md_to_html(md_text)
 
-full_html = f"""<!DOCTYPE html>
+def generate_pdf(config_name):
+    cfg = CONFIGS[config_name]
+    logo_uri = load_logo()
+    md_text = cfg["md"].read_text()
+    body_html = convert_md_to_html(md_text, cfg["diagrams"], cfg["diagram_prefix"])
+
+    meta_rows = "\n".join(
+        f'<tr><td class="label">{k}</td><td class="value">{v}</td></tr>'
+        for k, v in cfg["meta"]
+    )
+
+    full_html = f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
 @page {{
     size: A4;
-    margin: 25mm 20mm 30mm 20mm;
+    margin: 25mm 20mm 25mm 20mm;
     @bottom-center {{
         content: counter(page);
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -68,7 +118,7 @@ full_html = f"""<!DOCTYPE html>
         letter-spacing: 2pt;
     }}
     @bottom-left {{
-        content: "TENTIXO AB — CONFIDENTIAL";
+        content: "{cfg['footer_text']}";
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-size: 7pt;
         font-weight: 600;
@@ -97,7 +147,7 @@ body {{
     width: 210mm;
     height: 297mm;
     position: relative;
-    background: #00838F;
+    background: {cfg['cover_bg']};
     color: white;
     display: flex;
     flex-direction: column;
@@ -112,7 +162,7 @@ body {{
     right: 0;
     width: 50mm;
     height: 100%;
-    background: #006D75;
+    background: {cfg['cover_strip']};
 }}
 
 .cover-content {{
@@ -147,7 +197,6 @@ body {{
 .cover-meta {{
     margin-top: 30mm;
     font-size: 10pt;
-    color: #B2EBF2;
 }}
 
 .cover-meta table {{
@@ -166,7 +215,7 @@ body {{
 }}
 
 .cover-meta .label {{
-    color: #B2EBF2;
+    color: #8EE1EC;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 8pt;
@@ -185,34 +234,32 @@ h2 {{
     color: #1E3A45;
     border-bottom: 2px solid #00838F;
     padding-bottom: 3mm;
-    margin-top: 12mm;
-    margin-bottom: 5mm;
-    page-break-after: avoid;
+    margin-top: 10mm;
+    margin-bottom: 4mm;
 }}
 
 h3 {{
     font-size: 11.5pt;
     font-weight: 700;
     color: #1E3A45;
-    margin-top: 8mm;
-    margin-bottom: 3mm;
-    page-break-after: avoid;
+    margin-top: 6mm;
+    margin-bottom: 2mm;
 }}
 
 h4 {{
     font-size: 10pt;
     font-weight: 700;
     color: #00838F;
-    margin-top: 5mm;
+    margin-top: 4mm;
     margin-bottom: 2mm;
 }}
 
-/* --- BLOCKQUOTE (used for the intro callout) --- */
+/* --- BLOCKQUOTE --- */
 blockquote {{
     background: #F0F4F8;
     border-left: 4px solid #00838F;
-    margin: 5mm 0;
-    padding: 4mm 5mm;
+    margin: 4mm 0;
+    padding: 3mm 5mm;
     font-style: italic;
     color: #555555;
 }}
@@ -225,7 +272,7 @@ blockquote p {{
 table {{
     width: 100%;
     border-collapse: collapse;
-    margin: 4mm 0 5mm 0;
+    margin: 3mm 0 4mm 0;
     font-size: 9pt;
 }}
 
@@ -234,14 +281,14 @@ th {{
     color: #fff;
     font-weight: 600;
     text-align: left;
-    padding: 2.5mm 3mm;
+    padding: 2mm 3mm;
     font-size: 8.5pt;
     text-transform: uppercase;
     letter-spacing: 0.5pt;
 }}
 
 td {{
-    padding: 2.5mm 3mm;
+    padding: 2mm 3mm;
     border-bottom: 1px solid #E8E8E8;
     vertical-align: top;
 }}
@@ -262,11 +309,11 @@ code {{
 
 pre {{
     background: #E0F2F1;
-    padding: 4mm;
+    padding: 3mm;
     border-radius: 3px;
     overflow-x: auto;
     font-size: 8.5pt;
-    line-height: 1.5;
+    line-height: 1.4;
 }}
 
 pre code {{
@@ -277,30 +324,30 @@ pre code {{
 /* --- DIAGRAMS --- */
 .diagram {{
     text-align: center;
-    margin: 5mm 0;
-    page-break-inside: avoid;
+    margin: 3mm 0;
 }}
 
 .diagram img {{
     max-width: 100%;
+    max-height: 180mm;
     height: auto;
 }}
 
 /* --- LISTS --- */
 ul, ol {{
-    margin: 2mm 0 3mm 0;
+    margin: 2mm 0 2mm 0;
     padding-left: 6mm;
 }}
 
 li {{
-    margin-bottom: 1.5mm;
+    margin-bottom: 1mm;
 }}
 
 /* --- HORIZONTAL RULE --- */
 hr {{
     border: none;
     border-top: 1px solid #E8E8E8;
-    margin: 8mm 0;
+    margin: 5mm 0;
 }}
 
 /* --- STRONG --- */
@@ -308,18 +355,37 @@ strong {{
     color: #1E3A45;
 }}
 
-/* --- PAGE BREAKS --- */
+/* --- PAGE BREAK CONTROL --- */
 h2 {{
-    page-break-before: auto;
-}}
-
-/* Prevent orphaned headings */
-h2, h3, h4 {{
+    page-break-before: always;
     page-break-after: avoid;
 }}
 
-p, li, table {{
+h2:first-of-type {{
+    page-break-before: avoid;
+}}
+
+h3, h4 {{
+    page-break-after: avoid;
+}}
+
+/* Allow tables and diagrams to break across pages if needed */
+table {{
+    page-break-inside: auto;
+}}
+
+tr {{
     page-break-inside: avoid;
+}}
+
+.diagram {{
+    page-break-inside: avoid;
+}}
+
+/* Keep paragraphs together only if short */
+p {{
+    orphans: 3;
+    widows: 3;
 }}
 </style>
 </head>
@@ -332,14 +398,11 @@ p, li, table {{
         <div class="cover-logo">
             {"<img src='" + logo_uri + "'>" if logo_uri else ""}
         </div>
-        <div class="cover-title">Business Central<br>Best Practice Playbook</div>
-        <div class="cover-subtitle">Recommended patterns for setup, posting architecture,<br>and project management</div>
+        <div class="cover-title">{cfg['cover_title']}</div>
+        <div class="cover-subtitle">{cfg['cover_subtitle']}</div>
         <div class="cover-meta">
             <table>
-                <tr><td class="label">Version</td><td class="value">0.1 — Draft</td></tr>
-                <tr><td class="label">Date</td><td class="value">June 2026</td></tr>
-                <tr><td class="label">Classification</td><td class="value">Client Document</td></tr>
-                <tr><td class="label">Author</td><td class="value">Tentixo AB</td></tr>
+                {meta_rows}
             </table>
         </div>
     </div>
@@ -352,6 +415,23 @@ p, li, table {{
 </html>
 """
 
-HTML(string=full_html).write_pdf(str(OUT_PATH))
-print(f"PDF generated: {OUT_PATH}")
-print(f"Size: {OUT_PATH.stat().st_size / 1024:.0f} KB")
+    HTML(string=full_html).write_pdf(str(cfg["out"]))
+    print(f"  {config_name}: {cfg['out'].name} ({cfg['out'].stat().st_size / 1024:.0f} KB)")
+
+
+if __name__ == "__main__":
+    targets = sys.argv[1:] if len(sys.argv) > 1 else ["all"]
+
+    if "all" in targets:
+        targets = ["client", "internal"]
+
+    logo_uri = load_logo()
+    for t in targets:
+        if t not in CONFIGS:
+            print(f"Unknown target: {t}. Use: client, internal, all")
+            sys.exit(1)
+
+    print("Generating PDFs...")
+    for t in targets:
+        generate_pdf(t)
+    print("Done.")

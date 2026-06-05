@@ -3,7 +3,7 @@
 **Version**: 1.0
 **Status**: Active
 **Created**: 2026-05-26
-**Updated**: 2026-06-04
+**Updated**: 2026-06-05
 **Scope**: BC knowledge capture — architecture, operations, bookkeeping, client status
 
 > Living document. Captures what Chris has learned about BC from Morre, current client setups,
@@ -584,7 +584,78 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 6. Common gotchas (lessons learned the hard way)
+## 6. Operational patterns (from Masha sessions)
+
+*See `ai/reports/masha-bc-sessions.md` for full session notes. Below captures what's generally useful.*
+
+### 6.1 Swedish VAT rates in practice
+
+| Rate | VAT Prod. Posting Group | Applies to                                           |
+|------|------------------------|------------------------------------------------------|
+| 25%  | Standard               | Most goods and services in Sweden                    |
+| 12%  | Medium                 | Hotels in Sweden, restaurant food in Sweden          |
+| 6%   | Low                    | Domestic transport (cabs, flights within SE)         |
+| 0%   | Zero                   | Foreign services, international flights, insurance, health, banking |
+
+**Location-based rule**: VAT rate follows where the service is consumed, not purchased. Swedish hotel = 12%. Spanish hotel = 0%. Cab in Amsterdam = 0%. Cab in Stockholm = 6%.
+
+**Split-VAT transactions**: When one bank line contains items at different rates (e.g., Uber ride + tip), post as multiple journal lines under the **same document number**. Each line gets its own posting groups. Bank balancing line has no posting groups. Total must be zero.
+
+**Business dinners**: Max 300 SEK/person deductible. Alcohol is always non-deductible. Only the food portion (up to the limit) gets 12% VAT.
+
+### 6.2 Fixed assets — Swedish thresholds
+
+| Category              | Value range        | Depreciation                         |
+|-----------------------|-------------------|--------------------------------------|
+| **LVA** (low-value)   | 2,000–20,000 SEK  | Written off immediately at acquisition |
+| **Main fixed asset**  | > 20,000 SEK      | Depreciated over N years (e.g., 3 years for laptops) |
+
+- Post acquisition cost via **Fixed Asset Journal** (amount ex-VAT — VAT already handled in the receipt posting)
+- For main assets: run **Calculate Depreciation** monthly (Project card → Actions → Tasks). Creates journal lines moving value from FA account to depreciation expense account.
+- LVA: depreciation start date = end date → book value immediately zero.
+- On disposal: post in FA journal, then **manually** set FA card to Inactive + Blocked (disposal posting doesn't update the card status automatically).
+
+### 6.3 Payment reconciliation via bank XML
+
+Semi-automated matching of bank transactions to open invoices:
+
+1. Download XML transaction file from bank (monthly)
+2. BC: Payment Reconciliation Journal → Import Bank Transactions → upload XML
+3. BC auto-matches most transactions to open invoices
+4. Remove receipt lines (already posted as G/L entries)
+5. Validate matches — check that BC picked the correct invoice (watch for same-amount different-month false matches)
+6. Post the reconciliation
+
+This is the main mechanism for "gluing" payments to invoices at scale. For one-off manual matching: Sales/Purchase Journals → Payment document type → Apply Entries.
+
+### 6.4 Foreign currency — exchange rate gain/loss
+
+When paying invoices in foreign currency (EUR, USD), the exchange rate at invoicing vs. payment creates a difference:
+
+- **Exchange losses** (overpayment): BC offers "Transfer Difference to Account" in the payment reconciliation — one-click resolution to the exchange loss account.
+- **Exchange gains** (underpayment): This option is **not available** in BC. Must create a manual G/L journal entry to record the gain. Masha considers this a BC bug; worth verifying with Morre whether it's a configuration issue.
+
+### 6.5 Employee reimbursements
+
+When an employee pays a company expense from a personal card:
+
+- Post the expense to the correct G/L account, but use **Employee account** (not bank) as balancing account
+- Creates an open entry on the employee ledger (company owes them)
+- Apply against salary or separate reimbursement payment to close the entry
+
+### 6.6 Journal batch presets
+
+BC allows different journal batches with different default balancing account types. Useful for workflow efficiency:
+
+- "Danske" batch → default balancing = Bank Account (for receipt posting)
+- "Default" batch → default balancing = G/L Account (for salary distribution, tax entries)
+- "API" batch → reserved for automated postings (never use manually)
+
+**Saved journal templates** ("Standard Journals"): Pre-populated recurring entries (e.g., monthly salary lines). Load template, verify amounts, post. Useful when the same accounts repeat but amounts vary.
+
+---
+
+## 7. Common gotchas (lessons learned the hard way)
 
 - **Wrong tenant**: Tentixo company vs Cronus demo. Check top-right tenant selector before anything else.
 - **Inventory item type for services**: triggers negative inventory + valuation drama. Always `Service` for what we sell.
@@ -597,10 +668,12 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 - **Finalize WIP before closing a project**: If a project is at 90% WIP and you close it without running the final WIP calculation, the cancelling entries don't fire — you're left with orphaned WIP postings and manual cleanup. Always run WIP to 100% (or final state) before changing project status to closed.
 - **Don't mix parent and child accounts in the CoA**: Post to either the summary account or its children, never both. Formpipe did this with manual bookings and it obscured what was what.
 - **Cancelling entry on the wrong account type**: In the Formpipe/Sikri carve-out, a correction for a prepaid contract (2171) was accidentally booked to a post-pay account (1470). Automated code correctly treated it as post-pay, producing a ~500,000 SEK discrepancy. Then a manual fix compounded the error (minus instead of plus — doubling the mistake). Lesson: the account you post to determines how code and reports interpret the entry. A "small" misposting cascades.
+- **Exchange rate gain asymmetry**: BC can auto-transfer exchange losses (overpayment) to the loss account via "Transfer Difference to Account" in payment reconciliation. But exchange gains (underpayment) require a manual journal entry — the auto-transfer option doesn't appear. Possibly a bug, possibly a configuration issue. Check with Morre.
+- **FA disposal doesn't update the card**: After posting a disposal in the Fixed Asset Journal, the FA card status remains active. Manually set to Inactive + Blocked, otherwise it clutters the active asset list.
 
 ---
 
-## 7. Tentixo posting group conventions (sandbox state)
+## 8. Tentixo posting group conventions (sandbox state)
 
 | Group type                | Codes in use                                                                                              |
 |---------------------------|-----------------------------------------------------------------------------------------------------------|
@@ -618,7 +691,7 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 8. Terminology cheat sheet (EN ↔ SV)
+## 9. Terminology cheat sheet (EN ↔ SV)
 
 | English                  | Swedish                      | Notes                                                      |
 |--------------------------|------------------------------|------------------------------------------------------------|
@@ -656,7 +729,7 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 9. Useful shortcuts
+## 10. Useful shortcuts
 
 | Shortcut                     | What                                                             |
 |------------------------------|------------------------------------------------------------------|
@@ -670,7 +743,7 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 10. Active client status
+## 11. Active client status
 
 ### Tinky Minds Lab AB
 
@@ -709,7 +782,7 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 11. Open questions / things to learn next
+## 12. Open questions / things to learn next
 
 - Project Posting Groups in depth — WIP completion methods, when each fires, how to avoid the "close without final WIP" trap *(partially covered in §5.6 — need hands-on practice)*
 - Recurring billing in BC (Younium replacement question) — what BC offers natively
@@ -724,7 +797,7 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 
 ---
 
-## 12. Using this file with Claude Code
+## 13. Using this file with Claude Code
 
 - Keep as `ai/reports/business-central-playbook.md`. Source material (.docx, .png) lives in `ai/docs/`.
 - Update the "Active client status" and "Open questions" sections as engagements evolve.
@@ -738,3 +811,4 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 | Version | Date       | Changes                                                                                          |
 |---------|------------|--------------------------------------------------------------------------------------------------|
 | 1.0     | 2026-06-04 | Consolidated from three Morre sessions + six architecture diagrams. Applied TXO look and feel.   |
+| 1.1     | 2026-06-05 | Added §6 operational patterns from Masha session (VAT rates, fixed assets, payment reconciliation, exchange rates). New gotchas. |
