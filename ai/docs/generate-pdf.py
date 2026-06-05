@@ -87,6 +87,10 @@ def convert_md_to_html(md_text, diagram_dir, diagram_prefix):
         md_text = re.sub(rf'^\*\*{field}\*\*:.*\n', '', md_text, flags=re.MULTILINE)
 
     html = markdown.markdown(md_text, extensions=['tables', 'fenced_code'])
+
+    # Convert <!-- page-break --> markers to CSS page breaks
+    html = html.replace('<!-- page-break -->', '<div style="page-break-before: always;"></div>')
+
     return html
 
 

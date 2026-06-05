@@ -260,6 +260,8 @@ Project-linked lines on the generated invoice are **locked** — quantities and 
 
 ---
 
+<!-- page-break -->
+
 ## 7. The posting flow — what happens when you press Post
 
 Understanding the posting flow helps diagnose where things land and why.
@@ -295,6 +297,8 @@ Every journal entry flows through the same engine. The posting groups determine 
 
 ---
 
+<!-- page-break -->
+
 ## 8. Common anti-patterns
 
 These are the patterns we most frequently encounter in BC implementations that have grown organically without architectural intent.
@@ -311,6 +315,8 @@ These are the patterns we most frequently encounter in BC implementations that h
 | **Mixing pre-pay and post-pay accounts** | Automated reports produce incorrect figures | Correction entries booked to wrong account type | Account type determines how code and reports interpret the entry — be precise |
 
 ---
+
+<!-- page-break -->
 
 ## 9. Transaction-based thinking
 
@@ -366,6 +372,8 @@ graph LR
 Everything flows to the General Ledger. The module you work in determines the path, but the destination is always the same — posted entries in the ledger, routed by posting groups to the correct accounts.
 
 ---
+
+<!-- page-break -->
 
 ## 11. Next steps
 
