@@ -27,11 +27,9 @@
 
 ---
 
-<!-- page-break -->
-
 ## 2. ERD — core entities and relationships
 
-*(Full diagram: `ai/docs/diagrams/recurring-billing-erd.png`)*
+*(Full-resolution diagram: `ai/docs/diagrams/recurring-billing-erd.png`)*
 
 ### 2.1 The key flow (how entities connect end-to-end)
 
