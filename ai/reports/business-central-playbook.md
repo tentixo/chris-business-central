@@ -95,7 +95,7 @@ Tentixo's chart of accounts is organised around three sales categories. The CoA'
 
 ### 3.3 BC module map
 
-*(diagram: `ai/docs/BC_CentralParts-chris.png`)*
+*(diagram: `docs/BC_CentralParts-chris.png`)*
 
 ```mermaid
 graph LR
@@ -172,7 +172,7 @@ Companies that skip this either duplicate items (e.g., "Heat Map - Sweden" vs "H
 
 ### 3.5 Posting flow — how journal entries reach the ledger
 
-*(diagram: `ai/docs/BC-Posting-chris.png`)*
+*(diagram: `docs/BC-Posting-chris.png`)*
 
 ```mermaid
 graph TD
@@ -208,7 +208,7 @@ graph TD
 
 ### 3.6 Document posting — invoices and fixed assets
 
-*(diagram: `ai/docs/BC-Posting-from-document-chhris.png`)*
+*(diagram: `docs/BC-Posting-from-document-chhris.png`)*
 
 **Fixed Asset Vendor Invoice posting** — more complex, touches more ledgers:
 
@@ -246,7 +246,7 @@ graph TD
 
 ### 3.7 Project module ERD
 
-*(diagram: `ai/docs/BC-Project-ERD-Chris.png`)*
+*(diagram: `docs/BC-Project-ERD-Chris.png`)*
 
 ```mermaid
 graph TD
@@ -281,7 +281,7 @@ graph TD
 
 ### 3.8 VAT Business Posting Groups — geographic model
 
-*(diagram: `ai/docs/BC-VAT-pg-Chris.png`)*
+*(diagram: `docs/BC-VAT-pg-Chris.png`)*
 
 ```mermaid
 graph TD
@@ -319,7 +319,7 @@ graph TD
 
 ### 3.9 Warehouse module
 
-*(diagram: `ai/docs/BC-Warehous-ERD-Chris.png`)*
+*(diagram: `docs/BC-Warehous-ERD-Chris.png`)*
 
 Not directly relevant for consulting/services, but important for Goods-type engagements and Formpipe's product lines.
 

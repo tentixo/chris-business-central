@@ -1,6 +1,6 @@
 # Masha BC Sessions — Tentixo Bookkeeping Operations
 
-**Version**: 1.1
+**Version**: 1.2
 **Status**: Active (living document)
 **Created**: 2026-06-05
 **Updated**: 2026-06-08
@@ -46,6 +46,8 @@ Masha posts receipts one-by-one from the bank statement into General Journal ent
 **Journal batch setup**: Masha has pre-configured journal batches with different default balancing account types:
 - "Danske" batch → default balancing = Bank Account (for receipts)
 - "Default" batch → default balancing = G/L Account (for salary distribution etc.)
+
+**Recurring foreign-currency expenses** (GitHub, Docker, Google Workspace, Cloudflare): These are receipts, not invoices. They come in USD/EUR, so the SEK amount varies monthly due to exchange rates. Can't easily template these.
 
 **Cheat sheet**: Masha maintains a personal quick-reference of frequently used account numbers and the monthly process steps.
 
@@ -175,9 +177,9 @@ New suppliers need vendor card setup before scanning works.
 - Purchase Journals → same flow for vendor payments
 - Can also apply after the fact: go to Customer/Vendor ledger → Apply Entries
 
-### 12. Foreign currency and exchange rate differences
+#### Foreign currency exchange rate differences (invoices only)
 
-When paying in foreign currency (EUR, USD), the exchange rate at posting may differ from the rate at payment.
+When paying invoices in foreign currency (EUR, USD), the exchange rate at posting may differ from the rate at payment.
 
 **Two accounts**:
 - Exchange gains: **3960**
@@ -187,9 +189,7 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 
 **Workaround for exchange gains**: Create a manual G/L journal entry: Vendor + payment amount → balancing account = exchange gain account (3960). **Important**: Remove the currency on the journal line so the correction is posted in SEK.
 
-**Recurring foreign-currency expenses** (GitHub, Docker, Google Workspace, Cloudflare): Come in USD/EUR, so SEK amount varies monthly due to exchange. Can't easily template these.
-
-### 13. Tools and integrations
+### 12. Tools and integrations
 
 | Tool | Purpose | Integration with BC |
 |------|---------|-------------------|
@@ -230,9 +230,9 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 - Can G/L Accounts reasonably be used on Sales invoice lines? (Masha unsure — §9)
 - BC native invoice scanning — should Tentixo configure this to replace Tungsten? (Morre flagged)
 
-**Restructuring suggestions from Masha** (for next revision):
-- §12 (Foreign currency) should move under §11 (Payment reconciliation) — it's part of the same workflow
-- Recurring FX expenses note (GitHub, Docker etc.) should move to the receipts section — these are receipts, not invoices
+**Restructuring suggestions from Masha** (applied in v1.2):
+- ~~§12 (Foreign currency) should move under §11 (Payment reconciliation)~~ **Done** — merged as subsection of §11
+- ~~Recurring FX expenses note (GitHub, Docker etc.) should move to the receipts section~~ **Done** — moved to §2
 
 ---
 
@@ -242,3 +242,4 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 |---------|------------|----------------------------|
 | 1.0     | 2026-06-05 | Session 1 documented       |
 | 1.1     | 2026-06-08 | Masha's review feedback applied: posting group exception for bank-to-bank, FX accounts (3960/7960), purchase invoice scope corrected, SEK warning on FX workaround. Open comments flagged. |
+| 1.2     | 2026-06-08 | Restructured per Masha: FX exchange merged into §11 (payment reconciliation), recurring FX expenses moved to §2 (receipts). Old §12→§13 renumbered to §12. |
