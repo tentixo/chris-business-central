@@ -632,8 +632,8 @@ This is the main mechanism for "gluing" payments to invoices at scale. For one-o
 
 When paying invoices in foreign currency (EUR, USD), the exchange rate at invoicing vs. payment creates a difference:
 
-- **Exchange losses** (overpayment): BC offers "Transfer Difference to Account" in the payment reconciliation — one-click resolution to the exchange loss account.
-- **Exchange gains** (underpayment): This option is **not available** in BC. Must create a manual G/L journal entry to record the gain. Masha considers this a BC bug; worth verifying with Morre whether it's a configuration issue.
+- **Exchange losses** (overpayment, account **7960**): BC offers "Transfer Difference to Account" in the payment reconciliation — one-click resolution.
+- **Exchange gains** (underpayment, account **3960**): This option is **not available** in BC. Must create a manual G/L journal entry to record the gain — **remove the currency** on the journal line so the correction posts in SEK. Masha considers this a BC bug; worth verifying with Morre whether it's a configuration issue.
 
 ### 6.5 Employee reimbursements
 

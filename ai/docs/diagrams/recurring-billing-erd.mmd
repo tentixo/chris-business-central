@@ -1,0 +1,229 @@
+erDiagram
+    Customer ||--o{ "Cust. Subscription Contract" : "Sell-to / Bill-to"
+    Vendor ||--o{ "Vend. Subscription Contract" : "Buy-from / Pay-to"
+    "Sub. Contract Type" ||--o{ "Cust. Subscription Contract" : classifies
+    "Sub. Contract Type" ||--o{ "Vend. Subscription Contract" : classifies
+
+    "Cust. Subscription Contract" ||--o{ "Cust. Sub. Contract Line" : contains
+    "Vend. Subscription Contract" ||--o{ "Vend. Sub. Contract Line" : contains
+
+    "Cust. Sub. Contract Line" }o--|| "Subscription Header" : references
+    "Cust. Sub. Contract Line" }o--|| "Subscription Line" : references
+    "Vend. Sub. Contract Line" }o--|| "Subscription Header" : references
+    "Vend. Sub. Contract Line" }o--|| "Subscription Line" : references
+
+    "Subscription Header" ||--o{ "Subscription Line" : contains
+    "Subscription Header" }o--|| Item : "source (type=Item)"
+    "Subscription Header" }o--o| "GL Account" : "source (type=GL)"
+    "Subscription Header" }o--|| Customer : "End-User / Bill-to"
+
+    "Subscription Line" }o--o| "Subscription Package" : "from package"
+    "Subscription Line" }o--o| "Sub. Pkg Line Template" : "from template"
+    "Subscription Line" }o--o| Item : "Invoicing Item"
+
+    "Subscription Package" ||--o{ "Sub. Package Line" : contains
+    "Sub. Package Line" }o--o| "Sub. Pkg Line Template" : uses
+    "Sub. Package Line" }o--o| Item : "Invoicing Item"
+    Item ||--o{ "Item Sub. Package" : linked
+    "Subscription Package" ||--o{ "Item Sub. Package" : linked
+
+    "Billing Template" ||--o{ "Billing Line" : generates
+    "Billing Line" }o--|| "Cust. Subscription Contract" : "bills (Customer)"
+    "Billing Line" }o--|| "Vend. Subscription Contract" : "bills (Vendor)"
+    "Billing Line" }o--|| "Subscription Line" : "for line"
+    "Billing Line" }o--o| "Sales Header" : "creates invoice"
+    "Billing Line" }o--o| "Purchase Header" : "creates invoice"
+
+    "Cust. Subscription Contract" ||--o{ "Cust. Contract Deferral" : "revenue deferrals"
+    "Vend. Subscription Contract" ||--o{ "Vend. Contract Deferral" : "cost deferrals"
+    "Cust. Contract Deferral" }o--o| "GL Entry" : posts
+
+    "Subscription Line" ||--o| "Planned Sub. Line" : "renewal staging"
+    "Price Update Template" ||--o{ "Price Update Line" : generates
+
+    "Sales Subscription Line" }o--|| "Sales Header" : "on document"
+    "Sales Subscription Line" }o--|| Item : "for item"
+    "Sales Subscription Line" }o--o| "Subscription Package" : "from package"
+
+    Customer {
+        Code20 No PK
+        Text100 Name
+    }
+    Vendor {
+        Code20 No PK
+        Text100 Name
+    }
+    Item {
+        Code20 No PK
+        Enum Subscription_Option
+    }
+    "GL Account" {
+        Code20 No PK
+    }
+    "Sub. Contract Type" {
+        Code10 Code PK
+        Boolean Harmonized_Billing
+        Boolean Create_Deferrals
+    }
+    "Cust. Subscription Contract" {
+        Code20 No PK
+        Code20 Sell_to_Customer_No FK
+        Code20 Bill_to_Customer_No FK
+        Code10 Contract_Type FK
+        Code10 Currency_Code
+        Boolean Active
+        Date Billing_Base_Date
+    }
+    "Vend. Subscription Contract" {
+        Code20 No PK
+        Code20 Buy_from_Vendor_No FK
+        Code20 Pay_to_Vendor_No FK
+        Code10 Contract_Type FK
+        Boolean Active
+    }
+    "Cust. Sub. Contract Line" {
+        Code20 Contract_No FK
+        Integer Line_No PK
+        Enum Contract_Line_Type
+        Code20 Subscription_Header_No FK
+        Integer Sub_Line_Entry_No FK
+    }
+    "Vend. Sub. Contract Line" {
+        Code20 Contract_No FK
+        Integer Line_No PK
+        Enum Contract_Line_Type
+        Code20 Subscription_Header_No FK
+        Integer Sub_Line_Entry_No FK
+    }
+    "Subscription Header" {
+        Code20 No PK
+        Enum Type
+        Code20 Source_No FK
+        Code20 End_User_Customer_No FK
+        Code20 Bill_to_Customer_No FK
+        Code50 Serial_No
+        Decimal Quantity
+        Date Provision_Start_Date
+        Date Provision_End_Date
+    }
+    "Subscription Line" {
+        Integer Entry_No PK
+        Code20 Sub_Header_No FK
+        Code20 Contract_No FK
+        Integer Contract_Line_No FK
+        Enum Partner
+        Enum Invoicing_Via
+        Code20 Invoicing_Item_No FK
+        Date Sub_Line_Start_Date
+        Date Sub_Line_End_Date
+        Date Next_Billing_Date
+        Decimal Calculation_Base_Amount
+        Decimal Price
+        Decimal Amount
+        DateFormula Billing_Base_Period
+        DateFormula Billing_Rhythm
+        DateFormula Initial_Term
+        DateFormula Extension_Term
+        DateFormula Notice_Period
+        Boolean Closed
+    }
+    "Subscription Package" {
+        Code20 Code PK
+        Text100 Description
+        Code10 Price_Group FK
+    }
+    "Sub. Package Line" {
+        Code20 Package_Code FK
+        Integer Line_No PK
+        Enum Partner
+        Code20 Template FK
+        Enum Invoicing_Via
+        Code20 Invoicing_Item_No FK
+        Decimal Calculation_Base_Pct
+        DateFormula Billing_Base_Period
+        DateFormula Billing_Rhythm
+        DateFormula Initial_Term
+        DateFormula Extension_Term
+        DateFormula Notice_Period
+    }
+    "Sub. Pkg Line Template" {
+        Code20 Code PK
+        Enum Invoicing_Via
+        Code20 Invoicing_Item_No FK
+        Enum Calculation_Base_Type
+        Decimal Calculation_Base_Pct
+        DateFormula Billing_Base_Period
+    }
+    "Item Sub. Package" {
+        Code20 Item_No FK
+        Code20 Package_Code FK
+        Boolean Standard
+    }
+    "Billing Template" {
+        Code20 Code PK
+        Enum Partner
+        DateFormula Billing_Date_Formula
+        DateFormula Billing_to_Date_Formula
+        Enum Group_By
+        Enum Automation
+    }
+    "Billing Line" {
+        Integer Entry_No PK
+        Enum Partner
+        Code20 Partner_No FK
+        Code20 Contract_No FK
+        Integer Contract_Line_No FK
+        Code20 Sub_Header_No FK
+        Integer Sub_Line_Entry_No FK
+        Date Billing_From
+        Date Billing_To
+        Decimal Amount
+        Enum Document_Type
+        Code20 Document_No FK
+        Code20 Billing_Template_Code FK
+    }
+    "Cust. Contract Deferral" {
+        Integer Entry_No PK
+        Code20 Contract_No FK
+        Enum Document_Type
+        Code20 Document_No
+        Boolean Released
+        Date Posting_Date
+        Decimal Amount
+        Integer GL_Entry_No FK
+    }
+    "Vend. Contract Deferral" {
+        Integer Entry_No PK
+        Code20 Contract_No FK
+        Decimal Amount
+        Boolean Released
+    }
+    "Planned Sub. Line" {
+        Code20 Sub_Header_No FK
+        Integer Entry_No PK
+    }
+    "Price Update Template" {
+        Code20 Code PK
+        Enum Price_Update_Method
+        Decimal Update_Value_Pct
+    }
+    "Price Update Line" {
+        Integer Entry_No PK
+    }
+    "Sales Subscription Line" {
+        Enum Document_Type PK
+        Code20 Document_No PK
+        Integer Document_Line_No PK
+        Integer Line_No PK
+        Code20 Item_No FK
+        Code20 Package_Code FK
+    }
+    "Sales Header" {
+        Code20 No PK
+    }
+    "Purchase Header" {
+        Code20 No PK
+    }
+    "GL Entry" {
+        Integer Entry_No PK
+    }

@@ -1,9 +1,9 @@
 # Masha BC Sessions — Tentixo Bookkeeping Operations
 
-**Version**: 1.0
+**Version**: 1.1
 **Status**: Active (living document)
 **Created**: 2026-06-05
-**Updated**: 2026-06-05
+**Updated**: 2026-06-08
 **Scope**: How Masha does Tentixo's day-to-day bookkeeping in BC — operational reference, not best-practice prescription
 
 > Masha handles all Tentixo bookkeeping. These sessions document her actual workflow. Some
@@ -37,7 +37,8 @@ Masha's monthly cycle, roughly in order:
 Masha posts receipts one-by-one from the bank statement into General Journal entries:
 
 - **Balancing account**: Always the bank account (Danske Bank)
-- **Posting groups**: Purchase / Domestic / then VAT rate depends on expense type
+- **Posting groups**: Purchase / Domestic / then VAT rate depends on expense type. The "all five or none" rule (§4.3 of playbook) applies. **Exception**: bank-to-bank transactions (e.g., Danske → Employee, Danske → Skatteverket, loans to/from companies) — these have no posting groups since no purchase/sale is involved.
+- **Total amount**: Bank statement is the source of truth, especially important for receipts in non-SEK currencies where the amount may differ from the receipt face value.
 - **Document number**: Auto-assigned. Masha stamps the physical receipt with the document number for traceability.
 - **Date**: Bank statement date is source of truth (may differ from receipt date)
 - **Document type**: Left blank for receipts (only used for invoices/payments/credit memos)
@@ -136,7 +137,7 @@ Masha keeps a cheat sheet of account numbers since they're roughly the same each
 ### 9. Sales invoices
 
 - Created from the Customer card → New Document → Sales Invoice
-- Lines can be: Resources (people), Items (licenses), or G/L Accounts
+- Lines can be: Resources (people), Items (licenses), or G/L Accounts *(Masha's note: she can't recall ever using G/L Accounts on sales invoices — technically possible but unverified if reasonable. Check with Morre.)*
 - Sent directly from BC as PDF email attachment (email integration configured)
 - Credit memos for corrections
 - Tentixo skips Quotes and Orders — goes straight to Sales Invoice (small company, simple sales cycle)
@@ -145,16 +146,18 @@ Masha keeps a cheat sheet of account numbers since they're roughly the same each
 
 **Two methods**:
 
-1. **Manual**: Vendor card → New Document → Purchase Invoice → manually enter lines. Used for most vendors at Tentixo.
+1. **Manual**: Vendor card → New Document → Purchase Invoice → manually enter lines. Rarely used at Tentixo itself, but Masha uses this method for all other companies she handles (Swaxy, Idonex, etc.).
 
 2. **Tungsten Automation** (formerly AP Essentials): Invoice scanning tool integrated with BC.
    - Upload PDF invoices → system reads/OCRs the data
    - Verify extracted data (amounts, dates, vendor)
    - Click OK → appears in BC's Incoming Documents
    - From Incoming Documents → Create Document → auto-creates Purchase Invoice linked to correct vendor
-   - Still requires manual validation before posting
+   - Still requires manual validation before posting *(Masha's note: the verify step in Tungsten may be skippable — could validate only in BC's Incoming Documents instead. Workflow improvement to confirm.)*
 
 New suppliers need vendor card setup before scanning works.
+
+**Note from Morre**: BC now has **native invoice-scanning** support (new function, not yet configured at Tentixo). May supersede Tungsten Automation.
 
 ### 11. Payment reconciliation
 
@@ -177,12 +180,12 @@ New suppliers need vendor card setup before scanning works.
 When paying in foreign currency (EUR, USD), the exchange rate at posting may differ from the rate at payment.
 
 **Two accounts**:
-- Exchange gains (7xxx)
-- Exchange losses (7xxx)
+- Exchange gains: **3960**
+- Exchange losses: **7960**
 
 **The asymmetry bug**: When Tentixo *overpays* (exchange rate moved against them), BC offers "Transfer Difference to Account" — one-click resolution. When Tentixo *underpays* (exchange rate moved in their favor / they made money), this option is **not available**. Masha must manually create a journal entry to record the gain. She considers this a BC bug.
 
-**Workaround for exchange gains**: Create a manual G/L journal entry: Vendor + payment amount → balancing account = exchange gain account.
+**Workaround for exchange gains**: Create a manual G/L journal entry: Vendor + payment amount → balancing account = exchange gain account (3960). **Important**: Remove the currency on the journal line so the correction is posted in SEK.
 
 **Recurring foreign-currency expenses** (GitHub, Docker, Google Workspace, Cloudflare): Come in USD/EUR, so SEK amount varies monthly due to exchange. Can't easily template these.
 
@@ -203,17 +206,19 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 **Small-company shortcuts** (not recommended for clients):
 - Manual receipt posting one-by-one from bank statement
 - Manual salary transfer from Nmbrs to BC via templates (no integration)
-- Manual purchase invoice creation for most vendors
-- Physical receipt stamping for document number tracing
-- Skipping Quotes and Orders in the sales flow
-- Quarterly bank reconciliation instead of monthly
+- Manual purchase invoice creation for other companies (rarely needed at Tentixo itself)
+
+**Context-dependent** (may or may not be shortcuts):
+- Physical receipt stamping for document number tracing — *(Masha's note: there's a legal requirement for paper trail when digital storage isn't possible, so this may be necessary rather than a shortcut)*
+- Skipping Quotes and Orders in the sales flow — *(depends on each client's sales process)*
+- Bank reconciliation frequency — *(XML files are monthly, so reconciliation is effectively monthly, not quarterly as originally noted)*
 
 **Genuine best practices** (transferable to clients):
 - Bank statement as source of truth
-- Journal batch presets per workflow (Danske vs Default)
+- Journal batch presets per workflow (Danske vs Default) — tax account can also be added as a preset
 - Saved journal templates for recurring salary postings
 - XML bank import for payment reconciliation
-- Tungsten Automation for purchase invoice scanning
+- Tungsten Automation for purchase invoice scanning (note: BC native scanning may supersede this)
 - Split-VAT multi-line posting technique
 - Fixed asset LVA vs main classification with correct depreciation handling
 
@@ -222,6 +227,12 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 - The exchange rate gain/loss asymmetry — is this a known BC limitation or a configuration issue?
 - Could receipt posting be automated via the same XML bank import used for payment reconciliation?
 - Employee ledger vs. salary posting — is Masha's approach standard or is there a cleaner pattern?
+- Can G/L Accounts reasonably be used on Sales invoice lines? (Masha unsure — §9)
+- BC native invoice scanning — should Tentixo configure this to replace Tungsten? (Morre flagged)
+
+**Restructuring suggestions from Masha** (for next revision):
+- §12 (Foreign currency) should move under §11 (Payment reconciliation) — it's part of the same workflow
+- Recurring FX expenses note (GitHub, Docker etc.) should move to the receipts section — these are receipts, not invoices
 
 ---
 
@@ -230,3 +241,4 @@ When paying in foreign currency (EUR, USD), the exchange rate at posting may dif
 | Version | Date       | Changes                    |
 |---------|------------|----------------------------|
 | 1.0     | 2026-06-05 | Session 1 documented       |
+| 1.1     | 2026-06-08 | Masha's review feedback applied: posting group exception for bank-to-bank, FX accounts (3960/7960), purchase invoice scope corrected, SEK warning on FX workaround. Open comments flagged. |
