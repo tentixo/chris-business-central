@@ -1,8 +1,9 @@
 # Business Central — Best Practice Playbook
 
-**Version**: 0.1 — Draft
+**Version**: 0.3 — Draft
 **Status**: In progress
 **Created**: 2026-06-04
+**Updated**: 2026-06-12
 **Author**: Tentixo AB
 **Scope**: Recommended patterns for Business Central setup, posting architecture, and project management
 
@@ -26,22 +27,33 @@ Every layer in BC depends on the one below it. Get a lower layer wrong and every
 
 ```mermaid
 graph TD
-    L0["<b>Layer 0</b><br/><i>Number Series</i>"]
+    NS["<b>Number Series</b><br/><i>Prerequisite for<br/>all layers except<br/>Posting Groups</i>"]
     L1["<b>Layer 1</b><br/><i>Chart of Accounts</i>"]
     L2["<b>Layer 2</b><br/><i>Posting Groups</i>"]
     L3["<b>Layer 3</b><br/><i>Master Data</i><br/>(Customers, Items,<br/>Resources, Employees)"]
     L4["<b>Layer 4</b><br/><i>Projects</i>"]
     L5["<b>Layer 5</b><br/><i>Transactions</i><br/>(Journals → Invoices)"]
 
-    L0 --> L1 --> L2 --> L3 --> L4 --> L5
+    L1 --> L2
+    L2 -->|"controls where<br/>to post in GL"| L1
+    L2 --> L3 --> L4 --> L5
 
-    style L0 fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    NS -.->|"needed by"| L1
+    NS -.->|"needed by"| L3
+    NS -.->|"needed by"| L4
+    NS -.->|"needed by"| L5
+
+    style NS fill:#8E44AD,stroke:#0E474E,stroke-width:2px,color:#fff
     style L1 fill:#E74C3C,stroke:#0E474E,stroke-width:2px,color:#fff
     style L2 fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
     style L3 fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
     style L4 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
     style L5 fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
 ```
+
+**Number Series** are a prerequisite for every layer that creates records — but not for Posting Groups (configuration, not records). If a number series isn't set up for a module, that module is blocked entirely. Number Series sits alongside the hierarchy, not linearly above it.
+
+**Posting Groups → CoA**: The bidirectional arrow between Layer 1 and Layer 2 is intentional. Posting groups depend on the Chart of Accounts (they reference G/L accounts) and they *control* which accounts transactions land on. Getting either wrong breaks everything above.
 
 **Implication**: Before creating customers, items, or projects, the chart of accounts and posting groups must be intentionally designed — not inherited from a demo company or a previous implementation.
 
@@ -60,6 +72,9 @@ A well-designed CoA separates revenue by the cost drivers behind it. We recommen
 | 30xx  | **Goods** | Physical — shipping, warehousing, customs | Hardware resale, physical products |
 | 31xx  | **Virtual** | Low marginal — self-serve, electronic | Software licenses, SaaS, electronic services |
 | 32xx  | **Human** | Employee-bound — HR, availability | Consulting, advisory, professional services |
+| 34xx  | **WIP** | Activated cost (work in progress) | Project costs before final invoicing |
+
+The 34xx range aggregates costs from Goods, Virtual, and Human during project execution. WIP accounts track *why* something was activated, not what was activated. When the final invoice is posted, costs move from WIP back to the granular revenue categories (30xx–32xx).
 
 The same structure mirrors into the 4000-series (cost of goods sold): account 3011 (goods revenue) pairs with 4011 (purchase of goods).
 
@@ -134,15 +149,42 @@ When BC posts a journal entry, it reads up to five posting controls:
 
 **Rule: all five or none.** You cannot partially specify posting groups. If one is set, all must be set.
 
-### 4.4 Recommended posting group structure
+### 4.4 VAT Posting Groups must be semantic, not percentage-based
+
+Using `VAT25` as a VAT Product Posting Group is an anti-pattern. The problem: 25% is the Swedish rate, but the same item sold to an individual in Poland carries 20% VAT. If the group is called `VAT25`, the setup cannot handle cross-border sales without duplication or manual overrides.
+
+Instead, use semantic names that describe the *type* of product/service:
+
+| Semantic name | What it covers | Rate determined by |
+|---|---|---|
+| `SERVICE FULL` | Services at the standard rate | BC's VAT matrix: 25% in SE, 20% in PL, etc. |
+| `GOODS FULL` | Physical goods at the standard rate | Same matrix, different rules for goods |
+| `ELECTRONIC SERVICE` | Self-serve digital services | Special EU cross-border rules |
+| `ZERO` | VAT-exempt items | Always 0% |
+
+BC's VAT Posting Setup matrix resolves the actual percentage by combining (who you sell to × what VAT category). The percentage is a *result* of the matrix lookup, not an input.
+
+**Individual ≠ physical person for VAT.** A non-VAT-registered organisation (NGO, municipality) is treated as an "individual" in the VAT matrix — the distinction is VAT registration status, not legal form.
+
+### 4.5 Recommended posting group structure
 
 | Group type | Recommended codes | Purpose |
 |------------|-------------------|---------|
-| Gen. Bus. Posting Group | `DOMESTIC`, `EXPORT`, `INTERCO` | Separates customer geography/relationship |
+| Gen. Bus. Posting Group | Based on business relationship — avoid geography-based splits (see §4.6) | Maps to correct revenue/cost accounts |
 | Gen. Prod. Posting Group | By cost-driver category (see §3.1) | Maps to the correct revenue/cost accounts |
-| VAT Bus. Posting Group | Per jurisdiction (`SE`, `EU`, `EXPORT`) | Determines VAT treatment by counterparty location |
-| VAT Prod. Posting Group | Per VAT rate/type (`VAT25`, `VAT12`, `VAT0`, `ELECTRONIC`) | Determines VAT rate by product type |
+| VAT Bus. Posting Group | Per counterparty VAT status | Determines VAT treatment by counterparty |
+| VAT Prod. Posting Group | Per product/service type: `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO` | Determines VAT category (rate resolved by matrix) |
 | Customer Posting Group | `DOMESTIC`, `INTERCO` | Determines which AR account receives the receivable |
+
+### 4.6 The DOMESTIC/EXPORT anti-pattern
+
+Splitting Gen. Business Posting Groups by geography (DOMESTIC, EU, EXPORT) is a common recommendation that creates more problems than it solves:
+
+- "Export" is ambiguous — Ship-to, Pay-to, and Sell-to can each be in different countries
+- The customer/vendor card already contains this information (country, VAT registration, addresses)
+- Pushing geography into the CoA via Gen. Bus. Posting Groups inflates the chart of accounts by 5–7× (every account × every geography)
+
+**What belongs in the CoA instead**: Intercompany posting splits, which are required for consolidated financial reporting. These should cover inter-entity loans, cross-company warehouse movements, and a miscellaneous catch-all for shared costs. Don't over-split — group-level costs disappear in consolidation anyway.
 
 ---
 
@@ -153,8 +195,8 @@ When BC posts a journal entry, it reads up to five posting controls:
 | Decision | Recommendation | Why |
 |----------|---------------|-----|
 | Item Type for consulting/services | **Service** | Inventory type triggers stock tracking, negative inventory warnings, and cost valuation — all noise for service delivery |
-| Unit Price on the item | **0** (or catalogue reference) | Real prices belong in Price Lists, not the item card. One item, many prices per customer/project |
-| Base Unit of Measure | **PCS** (pieces) or **EA** (each) | EA is the international standard code used in electronic invoicing |
+| Unit Price on the item | **0** or catalogue reference price | Real prices belong in Price Lists, not the item card. A reference/catalogue price on the item is acceptable; customer-specific overrides go via price lists. |
+| Base Unit of Measure | **EA** (each) | EA is the international ISO standard code used in electronic invoicing. PCS is a pointer to EA internally — both work, but EA is correct. |
 
 ### 5.2 Resources vs. employees
 
@@ -185,8 +227,9 @@ The same person can appear in up to five different registers in BC. This is by d
 
 Hardcoding prices into item cards creates rigidity and forces item duplication. Instead:
 
-- Set Item Unit Price to **0** (or a reference/catalogue price)
-- Create **Sales Price Lists** for customer-specific, project-specific, or time-bound pricing
+- Set Item Unit Price to **0** or a **reference/catalogue price** (a fair-market default is acceptable on the item card)
+- Create **Sales Price Lists** for customer-specific, project-specific, or time-bound overrides
+- Price lists support granular overrides: per customer, per project, per project+resource, per project+resource+work type
 - Override at the invoice or project journal line when needed
 
 This pattern supports volume discounts, campaign pricing, and per-client rates without touching master data.
@@ -204,7 +247,14 @@ Use the Project module (not direct Sales Invoices) when:
 - You need **budget vs. actual** tracking and margin reporting
 - You want analytical **granularity per deliverable** preserved through to invoicing
 
-Direct Sales Invoices are appropriate for simple, one-off transactions. Recurring/subscription billing should stay **outside** the project to keep project P&L clean.
+Direct Sales Invoices are appropriate for simple, one-off transactions.
+
+**Recurring/subscription billing must stay outside the project.** This is not merely a preference — it is an architectural requirement driven by intent separation:
+
+1. **Different intent**: Subscriptions are fixed and predictable; projects are messy and evolving. Different containers for different intent.
+2. **Different legal requirements**: Subscription contracts and project contracts typically carry different cancellation terms, liability clauses, and general conditions. Merging them breaks the one-to-one mapping with legal obligations.
+3. **Different scoping**: Projects can span multiple customers; subscriptions are always single-customer. Mixing them risks silent errors when multi-customer projects are opened.
+4. **Aggregation belongs in Power BI**: Use the Customer card (org ID) to unify subscription and project revenue in reporting. The reporting/BI layer handles the combined view — not the invoice.
 
 ### 6.2 Project structure best practice
 
@@ -231,10 +281,14 @@ graph TD
 
 **Start with one task.** Add sub-tasks only when the engagement genuinely splits (retainer + project, or distinct phases the client wants billed separately). Premature granularity creates overhead without insight.
 
-**Planning line types:**
-- **Billable** — will appear on the invoice
-- **Budget** — internal cost tracking only
-- **Both Billable and Budget** — for T&M where hours are both a cost and a billing unit
+**Planning line types depend on billing model:**
+
+| Billing model | Item lines | Resource/hour lines | Why |
+|---|---|---|---|
+| **Fixed price** | **Billable** (the deliverable the client pays for) | **Budget** (effort tracking only — hours don't appear on invoice) | Separates what the client pays for from the work that goes in |
+| **T&M** | Usually not needed | **Both Billable and Budget** | Hours are both the cost unit and the billing unit |
+
+The key insight: for fixed-price work, the *item* is billable (the deliverable), but the *resource hours* are budget-only (internal cost visibility). For T&M, the resource hours serve both purposes.
 
 ### 6.3 WIP method must match project type
 
@@ -262,7 +316,96 @@ Project-linked lines on the generated invoice are **locked** — quantities and 
 
 <!-- page-break -->
 
-## 7. The posting flow — what happens when you press Post
+## 7. Subscription Billing — recurring revenue done right
+
+For fixed, recurring revenue streams — retainers, managed services, support agreements, SaaS — use BC's **Subscription Billing** module. This is a separate billing engine from project billing, and that separation is intentional (see §6.1).
+
+### 7.1 When to use Subscription Billing
+
+| Revenue type | Billing engine | Why |
+|---|---|---|
+| Fixed monthly retainer | **Subscription Billing** | Predictable, single-customer, no completion % |
+| Managed service contract | **Subscription Billing** | Recurring, automated, contract-driven |
+| Quoted project work | **Project Billing** | Evolving scope, budget vs. actual tracking |
+| T&M hourly work | **Project Billing** | Variable, effort-driven |
+
+When both are active for the same customer, they generate **separate invoices**. This is correct — subscription contracts and project contracts carry different legal terms, different cancellation clauses, and potentially different pricing models. Unified revenue reporting per customer happens in Power BI, not on the invoice.
+
+### 7.2 Key components
+
+```mermaid
+graph TD
+    SETUP["<b>Subscription Contract Setup</b><br/><i>Number series, defaults,<br/>invoice text arrangement</i>"]
+    ITEM["<b>Subscription Item</b><br/><i>Type: Non-Inventory<br/>Subscription Option: Subscription Item</i>"]
+    CONTRACT["<b>Customer Subscription Contract</b><br/><i>Customer + subscription line<br/>(item, price, rhythm)</i>"]
+    TEMPLATE["<b>Billing Template</b><br/><i>Automation engine<br/>(batches all contracts)</i>"]
+    PROPOSAL["Billing Proposal"]
+    INVOICE["<b>Draft Sales Invoice</b>"]
+
+    SETUP -.-> ITEM
+    SETUP -.-> CONTRACT
+    ITEM --> CONTRACT
+    CONTRACT --> TEMPLATE
+    TEMPLATE -->|"Create Billing Proposal"| PROPOSAL
+    PROPOSAL -->|"Create Documents"| INVOICE
+
+    style SETUP fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    style ITEM fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
+    style CONTRACT fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
+    style TEMPLATE fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
+    style INVOICE fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
+```
+
+**Subscription Contract Setup** (one-time, global): Number series for contracts and subscriptions, default billing rhythm (typically `1M` for monthly), period calculation alignment, and invoice text arrangement. The **"Billing Period"** option under Arrange Texts → Description must be set — without it, document creation fails.
+
+**Subscription Item**: A Non-Inventory item with Subscription Option set to "Subscription Item". This ensures the item is only available through subscription contracts, not on regular sales invoices or project billing. Price is set on the contract, not the item card (Unit Price = 0).
+
+**Customer Subscription Contract**: Links a customer to one or more subscription lines. Each line defines the item, quantity, price, billing rhythm, and start date. Deferrals can be enabled or disabled per contract depending on revenue recognition requirements.
+
+**Billing Template**: The automation layer. One template can serve all retainer clients — it picks up every active contract whose Next Billing Date falls within the billing period. No per-client configuration needed.
+
+### 7.3 Monthly billing workflow
+
+| Step | Action | Effort |
+|---|---|---|
+| 1 | Open Recurring Billing, select template, set billing date range | 30 seconds |
+| 2 | **Create Billing Proposal** — BC generates proposal lines from active contracts | Automatic |
+| 3 | Review proposal lines (customer, amount, period) | 30 seconds |
+| 4 | **Create Documents** — BC generates draft Sales Invoices | Automatic |
+| 5 | Review and Post the invoice(s) | 1 minute |
+
+Total monthly effort: **~2 minutes**, regardless of how many clients are on the template. Adding a new retainer client means creating one contract — the billing template handles the rest.
+
+### 7.4 Posting group flow
+
+Subscription invoices follow exactly the same posting group logic as any other sales document:
+
+```
+Customer  → Gen. Bus. Posting Group  → WHO
+Item      → Gen. Prod. Posting Group → WHAT
+                                      ↓
+              General Posting Setup   → G/L Revenue Account
+              VAT Posting Setup       → VAT Account + Rate
+```
+
+A retainer item with Gen. Prod. Posting Group `CONSULTING1` lands on the same 32xx Human/Consulting revenue accounts as project billing — because the posting groups control where the money lands, not which billing engine generated the invoice.
+
+### 7.5 Scalability
+
+This architecture scales cleanly:
+
+| Scenario | What changes | What doesn't |
+|---|---|---|
+| Add a new retainer client | Create one contract | Billing template, item, and posting setup stay the same |
+| Price increase across all retainers | Update via Price Update Template on contracts | No item changes, no template changes |
+| New type of subscription (e.g., managed SOC) | Create one new item + add lines to contracts | Billing template handles it automatically |
+| 10 retainer clients → 50 | Nothing — same template, same billing run | ~2 minutes per month regardless |
+
+---
+
+<!-- page-break -->
+
+## 8. The posting flow — what happens when you press Post
 
 Understanding the posting flow helps diagnose where things land and why.
 
@@ -299,7 +442,7 @@ Every journal entry flows through the same engine. The posting groups determine 
 
 <!-- page-break -->
 
-## 8. Common anti-patterns
+## 9. Common anti-patterns
 
 These are the patterns we most frequently encounter in BC implementations that have grown organically without architectural intent.
 
@@ -313,12 +456,15 @@ These are the patterns we most frequently encounter in BC implementations that h
 | **Manual hour re-keying** | Finance re-types time data from external systems | No integration between time tracking and BC | Use BC's Project Journal (or API integration) as the single entry point |
 | **WIP not finalized before project close** | Orphaned WIP entries on the balance sheet | Project closed without running the final WIP calculation | Always run WIP to completion before changing project status |
 | **Mixing pre-pay and post-pay accounts** | Automated reports produce incorrect figures | Correction entries booked to wrong account type | Account type determines how code and reports interpret the entry — be precise |
+| **Geography-based Gen. Bus. Posting Groups** | CoA inflated 5–7×, "Export" ambiguous for Ship-to/Pay-to/Sell-to splits | Baking geography into posting groups instead of using customer/vendor card data | Use Gen. Bus. Posting Group for business relationship type; geography lives on the customer card (see §4.6) |
+| **Percentage-based VAT Prod. Posting Groups** | Can't sell cross-border (VAT25 = 25% in SE but 20% in PL) | VAT rate hardcoded into group name | Use semantic names (SERVICE FULL, GOODS FULL) — BC resolves the rate via the VAT matrix (see §4.4) |
+| **Mixing subscription and project billing** | Legal/contractual confusion, project P&L never closes | Subscription lines added to project containers | Keep subscription billing in its own module (see §7) — aggregation happens in Power BI, not on the invoice (see §6.1) |
 
 ---
 
 <!-- page-break -->
 
-## 9. Transaction-based thinking
+## 10. Transaction-based thinking
 
 BC is a **transaction-based** system, not a database. This distinction matters for operations:
 
@@ -331,7 +477,7 @@ Systems that allow in-place edits (changing a field value, moving hours between 
 
 ---
 
-## 10. BC module landscape
+## 11. BC module landscape
 
 For reference — BC's major functional areas and how they connect.
 
@@ -375,7 +521,7 @@ Everything flows to the General Ledger. The module you work in determines the pa
 
 <!-- page-break -->
 
-## 11. Next steps
+## 12. Next steps
 
 If any of the anti-patterns in §8 look familiar, or if your current BC setup evolved without a deliberate architectural conversation, that conversation is worth having. The structural decisions described in this document — chart of accounts intent, posting group matrix, master data hygiene — are significantly cheaper to get right early than to fix after years of transactions.
 
@@ -392,3 +538,5 @@ Tentixo can help with:
 | Version | Date       | Changes              |
 |---------|------------|----------------------|
 | 0.1     | 2026-06-04 | Initial draft        |
+| 0.2     | 2026-06-09 | Updated with Morre's session 4 feedback |
+| 0.3     | 2026-06-12 | Added §7 Subscription Billing (components, workflow, posting flow, scalability). Renumbered §8–§12. |

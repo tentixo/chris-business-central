@@ -3,7 +3,7 @@
 **Version**: 1.0
 **Status**: Active
 **Created**: 2026-05-26
-**Updated**: 2026-06-05
+**Updated**: 2026-06-09
 **Scope**: BC knowledge capture — architecture, operations, bookkeeping, client status
 
 > Living document. Captures what Chris has learned about BC from Morre, current client setups,
@@ -20,7 +20,7 @@
 **My BC level**: Learning. Strong on commercial/strategic framing, conceptually solid on architecture, weak on UI muscle memory and edge cases.
 
 **Active BC engagements**:
-- **Tinky Minds Lab AB** — first practical setup. 18,000 SEK Heat Map engagement (incl. 2 workshops). Used as a real-world exercise to learn the full customer→project→invoice flow in Tentixo's sandbox.
+- **Tiny Minds Lab AB** (product: TinkyLär / "Tinky") — first practical setup. 18,000 SEK Heat Map engagement (incl. 2 workshops). Used as a real-world exercise to learn the full customer→project→invoice flow in Tentixo's sandbox.
 - **Formpipe** — newly signed BC-support contract. Spinning up a new Microsoft tenant in October 2026. Engagement scope: optimise finance operations and evaluate which third-party integrations (TimeLog, Younium, Rillion, etc.) can be replaced by BC-native functionality.
 - **Lasernet** — ongoing BC governance programme (separate engagement, less active for me personally).
 
@@ -37,33 +37,45 @@ When I'm getting help on BC tasks, default to these patterns — they match how 
 - **Resources = "we sell you". Employees = "you work for us".** Separate records, both needed for people-driven engagements.
 - **Service-type Items, not Inventory.** Inventory type triggers stock tracking, negative inventory traps, valuation noise — wrong for consulting.
 - **Transaction-based, not database-based.** BC's strength vs systems like TimeLog: posted entries stay in the ledger. Reversals create audit trail. Avoid any pattern that suggests "just edit the value."
+- **"Correctness based on intent", not "best practice".** Morre avoids the term "best practice" — many so-called best practices are wrong (e.g., the DOMESTIC/EXPORT Gen. Bus. Posting Group split). Instead, evaluate setups by asking: does this reflect the *intent* of the transaction? Does it propagate correctly to legal, management, and reporting? The MVA principle applies: you cannot remove complexity, only move it. If the BC pattern generates work in another department, it hasn't followed MVA.
 
 ---
 
 ## 3. Core architectural model
 
-### 3.1 The layered hierarchy
+### 3.1 The dependency graph
 
-Every layer depends on the one below. Get a lower layer wrong → everything above breaks.
+Every layer depends on the one below. Get a lower layer wrong → everything above breaks. Posting groups point back to the Chart of Accounts (they control *where* transactions post in the GL).
 
 ```mermaid
 graph TD
-    L0["<b>Layer 0</b><br/><i>Number Series</i>"]
+    NS["<b>Number Series</b><br/><i>Prerequisite for<br/>all layers except<br/>Posting Groups</i>"]
     L1["<b>Layer 1</b><br/><i>Chart of Accounts</i>"]
     L2["<b>Layer 2</b><br/><i>Posting Groups</i><br/>(General + VAT,<br/>Business + Product,<br/>Customer, Project)"]
     L3["<b>Layer 3</b><br/><i>Master Data</i><br/>(Customers, Items,<br/>Resources, Employees)"]
     L4["<b>Layer 4</b><br/><i>Project</i>"]
     L5["<b>Layer 5</b><br/><i>Project Journal →<br/>Project Invoice</i>"]
 
-    L0 --> L1 --> L2 --> L3 --> L4 --> L5
+    L1 --> L2
+    L2 -->|"controls where<br/>to post in GL"| L1
+    L2 --> L3 --> L4 --> L5
 
-    style L0 fill:#1E3A45,stroke:#0E474E,stroke-width:2px,color:#fff
+    NS -.->|"needed by"| L1
+    NS -.->|"needed by"| L3
+    NS -.->|"needed by"| L4
+    NS -.->|"needed by"| L5
+
+    style NS fill:#8E44AD,stroke:#0E474E,stroke-width:2px,color:#fff
     style L1 fill:#E74C3C,stroke:#0E474E,stroke-width:2px,color:#fff
     style L2 fill:#E67E22,stroke:#0E474E,stroke-width:2px,color:#fff
     style L3 fill:#00838F,stroke:#0E474E,stroke-width:2px,color:#fff
     style L4 fill:#006D75,stroke:#0E474E,stroke-width:2px,color:#fff
     style L5 fill:#27AE60,stroke:#0E474E,stroke-width:2px,color:#fff
 ```
+
+**Number Series** are a prerequisite for every layer that creates records (CoA, Master Data, Projects, Transactions) — but *not* for Posting Groups (they are configuration, not records). If a number series isn't set up (e.g., Subscription Billing numbers missing from the sandbox), that entire module is blocked. Number Series sits alongside the hierarchy, not above it in a linear stack.
+
+**Posting Groups → CoA**: The arrow from Layer 2 back to Layer 1 is intentional. Posting groups don't just depend on the CoA — they *control* which CoA accounts transactions land on. The General Posting Setup matrix maps (Business Group × Product Group) → G/L Account.
 
 **Five "people" registers in BC** — the same person can appear in multiple registers, each serving a different purpose:
 
@@ -86,6 +98,9 @@ Tentixo's chart of accounts is organised around three sales categories. The CoA'
 | 30xx  | Goods   | Physical, shipping     | Hardware resale                 |
 | 31xx  | Virtual | Low marginal, self-serve | Licenses, electronic services |
 | 32xx  | Human   | Employees, HR          | Consulting, advisory            |
+| 34xx  | WIP     | Activated cost (work in progress) | Project costs before final invoice |
+
+**34xx WIP — the activation layer**: Work in progress aggregates costs from Goods, Virtual, and Human without maintaining that granularity — it's just a value. The 34xx accounts are categorised by *why* something was activated (the reason for the WIP), not *what* was activated. When the final invoice is sent, activated costs move from WIP back into the granular 30xx/31xx/32xx categories. Check the 34xx sub-accounts to see the WIP split by activation reason.
 
 **Litmus test**: if we remove humans, can we still deliver? If no → Human, regardless of pricing model. *Heat Map is Human (Consulting) — fixed price doesn't override delivery reality.*
 
@@ -168,9 +183,45 @@ BC's core elegance — and the lens Morre uses to evaluate every implementation:
 - **General Posting Setup** = the matrix that maps every (WHO, WHAT) combination to a specific G/L revenue account
 - **Same logic for VAT**: VAT Bus × VAT Prod → correct moms rate + accounts
 
+**VAT Prod. Posting Groups must be semantic, not percentage-based.** Using `VAT25` as a posting group name is an anti-pattern — 25% is the Swedish rate, but the same item sold to an individual in Poland is 20%. If the group is called `VAT25`, you can't sell to Poland. Instead, use names like `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`. BC's VAT Posting Setup matrix handles the country-specific percentage: it sees (who you sell to × what VAT category) and applies the correct rate (25% in Sweden, 20% in Poland, 0% for VAT-exempt). The percentage is a *result* of the matrix lookup, not an input.
+
+**Individual ≠ physical person for VAT purposes.** An organisation can be an "individual" for VAT — NGOs, municipalities (kommuner), and other non-VAT-registered entities are treated as individuals in the VAT matrix even though they're organisations. The distinction is VAT registration, not legal form.
+
 Companies that skip this either duplicate items (e.g., "Heat Map - Sweden" vs "Heat Map - Norway") or fall into dimension overload (Formpipe's pre-acquisition mistake).
 
-### 3.5 Posting flow — how journal entries reach the ledger
+### 3.5 Gen. Business Posting Group — the DOMESTIC/EXPORT anti-pattern
+
+Separating Gen. Business Posting Groups into DOMESTIC, EU, EXPORT is a common "best practice" that Morre identifies as an **anti-pattern**. The problems:
+
+- "Export" is hard to define cleanly — Ship-to, Pay-to, and Sell-to can all be different countries
+- The information about *where* you sell to already lives on the Customer/Vendor card (country, VAT registration, addresses)
+- Splitting it into the CoA via Gen. Bus. Posting Group would make the chart of accounts 5–7× larger (every cost account × every geography)
+
+**What belongs in the CoA instead**: Intercompany posting splits — these are required for vanilla consolidation (combining subsidiary accounts into a group-level view). Morre's pattern:
+
+| Intercompany split | Purpose |
+|---|---|
+| Loans | Track inter-entity lending |
+| Warehouse items | Cross-company inventory movements (must track to keep warehouse correct) |
+| Miscellaneous costs | Catch-all for shared costs (e.g., group-level marketing events) — don't be too granular, it disappears at group level anyway |
+
+**The propagation test**: If you have a multi-entity group (e.g., Formpipe SE/DK) and a brand marketing event costs 100k — should you split that invoice between entities and then re-consolidate? No. It's a group-level cost. Splitting it per company and then aggregating in consolidation is circular work.
+
+### 3.6 General Posting Type — the 5th tag
+
+Morre's rule: **"If you use one of the four posting groups, you need all five."** The 5th control is the **General Posting Type**, which indicates the direction of the transaction:
+
+| General Posting Type | Meaning |
+|---|---|
+| **Sale** | Revenue / outgoing to customer |
+| **Purchase** | Cost / incoming from vendor |
+| **Settlement** | Clearing / balancing entry |
+
+BC often infers this automatically (posting a vendor invoice = Purchase), but on manual journal lines you must set it explicitly. Without it, BC can't resolve the posting group matrix correctly.
+
+*(See Morre's posting diagram for visual placement of Gen Posting Type alongside the four posting groups.)*
+
+### 3.7 Posting flow — how journal entries reach the ledger
 
 *(diagram: `docs/BC-Posting-chris.png`)*
 
@@ -206,7 +257,7 @@ graph TD
 4. **"All Five or None!"** — Gen Posting Type + all four posting groups must be set together, or none at all. You can't partially specify.
 5. Output: document number → **General Ledger (CoA)** entry on the resolved account (e.g., 3010), and VAT% matched by Biz+Prod → **VAT Entries** ledger.
 
-### 3.6 Document posting — invoices and fixed assets
+### 3.8 Document posting — invoices and fixed assets
 
 *(diagram: `docs/BC-Posting-from-document-chhris.png`)*
 
@@ -244,7 +295,7 @@ graph TD
 - Purchase Journal (with Bank Account as balancing account) → Post → "Apply Payment to Invoice" on the Vendor Ledger
 - Posting Groups: Vendor + Bank Account → writes to General Ledger + Bank Account Ledger
 
-### 3.7 Project module ERD
+### 3.9 Project module ERD
 
 *(diagram: `docs/BC-Project-ERD-Chris.png`)*
 
@@ -279,7 +330,7 @@ graph TD
 - **G/L Account** can also appear on Planning Lines (for non-item, non-resource costs)
 - **Time Sheet** and **Calendar** connections shown with "?" — integration points that may or may not be enabled
 
-### 3.8 VAT Business Posting Groups — geographic model
+### 3.10 VAT Business Posting Groups — geographic model
 
 *(diagram: `docs/BC-VAT-pg-Chris.png`)*
 
@@ -317,7 +368,7 @@ graph TD
 - DK customer "with VAT" shows that some jurisdictions require VAT registration on the customer card
 - This is why the WHO × WHAT matrix is so powerful — same item, different customer country, correct VAT treatment automatically
 
-### 3.9 Warehouse module
+### 3.11 Warehouse module
 
 *(diagram: `docs/BC-Warehous-ERD-Chris.png`)*
 
@@ -344,7 +395,7 @@ graph TD
 
 If Bin is **not mandatory**: just "Recording" (simplified tracking without bin-level precision).
 
-### 3.10 Why Project (not direct Sales Invoice) for "messy" engagements
+### 3.12 Why Project (not direct Sales Invoice) for "messy" engagements
 
 Project model wins over direct invoicing when:
 - Engagement is evolving, not a one-off transaction
@@ -352,7 +403,11 @@ Project model wins over direct invoicing when:
 - Need analytical granularity per sub-element preserved through to invoicing
 - Want budget vs actual and margin reporting
 
-Keep recurring/subscription billing **outside** the project — keeps project P&L clean.
+Keep recurring/subscription billing **outside** the project. Reasons (confirmed by Morre, June 2026):
+1. Keeps project P&L clean (projects have a lifecycle; subscriptions don't)
+2. Different legal requirements — subscription contracts and project contracts typically have different cancellation terms, liability clauses, and general conditions. Merging them breaks the one-to-one mapping with legal.
+3. Multi-customer projects exist in BC (Gen. Bus. Posting Group set per line); subscriptions are always single-customer. Mixing risks confusion.
+4. MVA: you cannot remove complexity, only move it. Merging creates downstream work in legal/operations.
 
 ---
 
@@ -401,11 +456,11 @@ Watch for duplicate contacts if the same company is both customer and vendor (Id
 | Field                    | Value                                |
 |--------------------------|--------------------------------------|
 | Type                     | `Service`                            |
-| Base Unit of Measure     | `PCS`                                |
+| Base Unit of Measure     | `EA` (international standard; PCS maps to EA internally) |
 | Gen. Prod. Posting Group | `CONSULTING1` (Human-bound delivery) |
-| VAT Prod. Posting Group  | `VAT25`                              |
+| VAT Prod. Posting Group  | `SERVICE FULL` (not `VAT25` — see §3.4 on why percentage-based names are an anti-pattern) |
 | Inventory Posting Group  | blank                                |
-| Unit Price               | `0` (override via price list)        |
+| Unit Price               | `0` or reference/catalogue price (real prices via price lists — see §5.4) |
 
 ### Step 4 — Resource (the "we sell you" side)
 
@@ -416,7 +471,7 @@ Watch for duplicate contacts if the same company is both customer and vendor (Id
 | Unit Cost                | `560` (my internal cost rate)                      |
 | Unit Price               | `1400` (default sell rate — override per client/project) |
 | Gen. Prod. Posting Group | `CONSULTING1`                                      |
-| VAT Prod. Posting Group  | `VAT25`                                            |
+| VAT Prod. Posting Group  | `SERVICE FULL` (semantic, not percentage-based)     |
 
 **Trap**: Unit Cost and Unit Price sit next to each other. Don't change Unit Cost when you mean Unit Price (Morre caught me on this).
 
@@ -441,8 +496,14 @@ Parallel record to Resource. Where the Resource card links via `Employee No.`, p
 
 **Journal batch hygiene**: Before posting, check which batch you're in (top of the journal page). Batches let multiple people work in the same journal simultaneously without collisions. There's a dedicated **API batch** with its own number series — never post manually to it. Use the `DEFAULT` batch for manual work.
 
-Two line types for fixed-price engagements:
+**Fixed-price vs T&M — the line type split** (Morre, June 2026):
 
+| Billing model | Item lines | Resource lines | Rationale |
+|---|---|---|---|
+| **Fixed price** | **Billable** (the invoiceable deliverable, e.g., HM-LITE @ 18k) | **Budget** (effort tracking only — hours don't appear on invoice) | Separates what the client pays for (deliverable) from the work that goes in (effort). Budget = internal cost visibility. |
+| **T&M** | Usually not needed | **Both Billable and Budget** | Hours are both the cost unit and the billing unit — same line serves both purposes. |
+
+Example — fixed-price Heat Map:
 ```
 Line 1 (revenue capture):
   Type=Item, No.=HM-LITE, Project Task=1000, Qty=1,
@@ -450,10 +511,10 @@ Line 1 (revenue capture):
 
 Line 2 (cost capture):
   Type=Resource, No.=CHRIS, Project Task=1000, Qty=16,
-  Line Type=Non-Billable
+  Line Type=Budget
 ```
 
-For T&M instead: Resource lines are `Billable`, no Item line needed.
+For T&M: Resource lines are `Both Billable and Budget`, no separate Item line needed.
 
 **Posting date shortcuts**: Type `T` + Tab for today's date. For prior months, type the short date directly (e.g., `0430` for April 30).
 
@@ -518,11 +579,12 @@ Every transaction has a plus and a matching minus — the books must always net 
 
 **The 3000/4000 mirror**: Revenue account 3011 (goods revenue) pairs with 4011 (purchase of goods). Same structure — one digit apart. This is deliberate.
 
-**GVH in the 3000s** (Tentixo/Formpipe convention):
+**GVH+W in the 3000s** (Tentixo/Formpipe convention):
 - 30xx — Goods
 - 31xx — Services (virtual, low-marginal)
 - 32xx — Human (consulting)
 - 33xx — Odd sales (one-offs you want separated from core revenue)
+- 34xx — Work in Progress (activated costs — see §3.2)
 
 **Tree rule**: The chart of accounts is a tree (each account has one parent). If you use granular child accounts, you must not also post to the parent — they overlap. Pick one level. *(Formpipe violated this with manual bookings — led to confusion.)*
 
@@ -643,7 +705,50 @@ When an employee pays a company expense from a personal card:
 - Creates an open entry on the employee ledger (company owes them)
 - Apply against salary or separate reimbursement payment to close the entry
 
-### 6.6 Journal batch presets
+### 6.6 Deferrals — putting costs and revenue in the right period
+
+*From Masha session, June 11 2026*
+
+Deferrals move a cost or revenue entry to the period where it actually belongs — critical for correct reporting and WIP. BC handles this via **deferral codes** on journal lines, purchase invoice lines, and sales invoice lines.
+
+**Tentixo deferral codes** — 6 presets (3 cost, 3 revenue):
+
+| Code type | Direction | Use case |
+|---|---|---|
+| Cost backward | Past | Invoice received today for last month's service (e.g., Hompland cleaning) |
+| Cost forward | Future | Prepaid expense — booked today for next month |
+| Cost spread | Multiple periods | Quarterly invoice spread across 3 months (e.g., telecom at 9,000 SEK/quarter → 3 × 3,000) |
+| Revenue backward | Past | T&M sales invoice sent in June for May's hours → revenue belongs in May |
+| Revenue forward | Future | Prepaid revenue (deposit for future work) |
+| Revenue spread | Multiple periods | Annual contract revenue spread across 12 months |
+
+**How to apply (General Journal)**:
+
+1. Set up the journal line as usual (all 5 posting groups + posting type)
+2. Select **Deferral Code** on the line
+3. Click the `...` to open the deferral schedule
+4. **Backward**: manually set the start date (BC doesn't auto-populate for past dates)
+5. **Forward**: auto-calculates the future date
+6. **Spread**: set the number of periods + start date
+7. Click **Calculate Schedule** → shows deferred amounts per period (amounts are ex-VAT)
+
+Same workflow on **Purchase Invoice** and **Sales Invoice** lines — the Deferral Code column is available on invoice line subpages.
+
+**When deferrals fire**: VAT posting and deferral posting both happen at the moment of **posting the invoice**. When payment arrives later, it just "glues" to the invoice — no deferral adjustment needed.
+
+**On the Chart of Accounts**: Deferral postings appear alongside the invoice posting under the same document number. The invoice amount and the deferral amount cancel each other out in the posted month; the deferred amount appears in the correct period.
+
+**Tentixo threshold rule**: Only defer amounts ≥ **2,000 SEK/month** (≈ 24,000 SEK/year). Below this, the deferrals create too many small lines on reports and are hard to validate. Examples:
+- Adobe Suite (~10,000/year) → **not deferred** (below threshold)
+- Google Workspace (~300–500/month) → **not deferred** (stopped — too much mess)
+- Hompland cleaning (above threshold) → **deferred** backward to service month
+- T&M sales invoices → **always deferred** (revenue backward to work month)
+
+**Quarter-close pragmatism**: If Q1 is closed and a Q1 invoice arrives in Q2, book it in Q2 rather than reopening Q1 reporting. Correctness vs. rework tradeoff — not perfect, but avoids redoing the quarterly report.
+
+**Travel expenses**: Airplane tickets or hotels booked in advance → defer to the month of actual travel, not the purchase date.
+
+### 6.7 Journal batch presets
 
 BC allows different journal batches with different default balancing account types. Useful for workflow efficiency:
 
@@ -677,12 +782,12 @@ BC allows different journal batches with different default balancing account typ
 
 | Group type                | Codes in use                                                                                              |
 |---------------------------|-----------------------------------------------------------------------------------------------------------|
-| Gen. Bus. Posting Group   | `EXT`, `NATIONAL`, `INTERCO`                                                                              |
+| Gen. Bus. Posting Group   | `EXT`, `NATIONAL`, `INTERCO` (**note**: DOMESTIC/EXPORT split is an anti-pattern per §3.5 — review needed) |
 | VAT Bus. Posting Group    | `EXT`, `NATIONAL`                                                                                         |
 | Customer Posting Group    | `DOMESTIC` (1511 AR), `INTERCO` (1565 AR)                                                                 |
 | Gen. Prod. Posting Group  | `CONSULTING1` (employees), `CONSULTING2` (sub-consultants), `CONSULTING3` (training, cost-only), `SERVICES`, `GOODS` |
-| VAT Prod. Posting Group   | `VAT25`, `VAT12`, `VAT6`, `VAT0`                                                                         |
-| Project Posting Group     | (consulting-aligned, with WIP account)                                                                    |
+| VAT Prod. Posting Group   | Should be semantic: `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO` (sandbox currently uses `VAT25` etc. — needs correction per §3.4) |
+| Project Posting Group     | (consulting-aligned, with WIP account on 34xx)                                                            |
 
 **CONSULTING tiers**:
 - `CONSULTING1` — employees (highest margin)
@@ -745,17 +850,49 @@ BC allows different journal batches with different default balancing account typ
 
 ## 11. Active client status
 
-### Tinky Minds Lab AB
+### Tiny Minds Lab AB
 
 - **Engagement**: Heat Map project (incl. 2 workshops), agreed 18,000 SEK ex moms
 - **Customer card**: created in Tentixo sandbox. VAT validated, address populated (had to cut/paste from one-line VAT lookup). Country/Region SE set.
 - **Contact card**: auto-created from customer. Person contacts to be added.
-- **Item**: `HM-LITE`, Service type, CONSULTING1, VAT25, Unit Price = 0 (override on invoice)
-- **Resource**: Chris (Person, HOUR, CONSULTING1, VAT25, cost 560, price 1400)
+- **Item**: `HM-LITE`, Service type, CONSULTING1, VAT Prod PG needs correction (currently VAT25 → should be SERVICE FULL). Unit Price = 0 (override on invoice). Morre set a reference price of 28k on the item — acceptable as a catalogue reference.
+- **Resource**: Chris (Person, HOUR, CONSULTING1, VAT Prod PG needs correction, cost 560, price 1400)
 - **Employee**: Chris — record exists, linked to Resource
 - **Project**: linked to Tinky, one task (`ITSEC`). Person Responsible = Chris (from Contacts). WIP method = Sales Value.
 - **Status**: **First invoice posted** (May 27, 2026). Item line: 1× HM-LITE @ 18,000 SEK. Posted to ledger, visible in posted sales invoices.
 - **Open question**: keep as catalogue SKU (HM-LITE with override pricing) or as one-off custom item? Morre says keep same item, override price via price lists — don't lock pricing into the item.
+
+**Billing decision (Morre, June 9 2026) — Option A confirmed:**
+- **Retainer** (15k/month fixed) → Subscription Billing module. Separate contract, automated monthly invoicing.
+- **Ad-hoc projects** (quoted fixed price) → Project Billing. New project per engagement, same 8-step flow.
+- **Two separate invoices** to Tinky when both streams active. Morre confirms this is correct — reasons:
+  1. *Intent separation*: subscription is fixed/predictable, project is messy/evolving. Different containers for different intent.
+  2. *Legal separation*: subscription and project may have different contractual terms (cancellation, liability, general clauses). Merging them loses the one-to-one mapping with legal requirements.
+  3. *Multi-customer projects*: projects can span multiple customers (Gen. Bus. Posting Group set per line). Subscription billing is always one customer. Mixing them risks confusion if someone opens a multi-customer project.
+  4. *MVA principle*: you cannot remove complexity, you can only move it. Merging billing streams moves complexity into legal/operations departments. Keep it where it belongs.
+- **Aggregation in Power BI**: use the Customer card (org ID) to unify retainer and project revenue in reporting. The aggregation layer is Power BI, not the invoice.
+- **Edge case for later**: Python API scripts can generate custom invoices if a client genuinely needs a single combined document. But start with the correct architecture.
+- See `ai/reports/tinky-billing-scenarios.md` for the full three-scenario analysis.
+
+**Subscription Billing setup (completed June 12, 2026):**
+
+Setup sequence: Subscription Contract Setup (number series + arrange texts) → Item → Customer Subscription Contract → Billing Template → test billing run.
+
+- **Subscription Contract Setup** (global config):
+  - Number Series assigned: `S-CON` (Customer Contracts), `P-CON` (Vendor Contracts), `SUB-NO` (Subscriptions)
+  - Defaults: Billing Base Period `1M`, Billing Rhythm `1M`, Period Calculation "Align to Start of Month", Deferrals "Contract-dependent"
+  - Invoice Details → Arrange Texts → Description = **"Billing Period"** (required — without this, Create Documents fails with "Faktureringsperiod" error)
+- **Item**: `SEC-RETAINER`, Type = **Non-Inventory** (not Service — "Subscription Item" option requires Non-Inventory), Subscription Option = **Subscription Item**, Gen. Prod. PG = CONSULTING1, Unit Price = 0 (price on contract)
+- **Customer Subscription Contract**: `B-SCC00001`, Tiny Minds Lab AB, Contact: Kaveh Pourshahidi, Active, Create Contract Deferrals = Off
+  - Line: SEC-RETAINER, Qty 1, Calculation Base Amount 15,000, Billing Rhythm 1M, Start Date 2026-07-01
+- **Billing Template**: `MONTHLY-RET`, Partner = Customer (reusable across all retainer clients)
+- **Test result**: Billing Proposal → Create Documents → draft Sales Invoice B-SX000004 generated. 15,000 + 3,750 moms = 18,750 SEK. Posting groups resolve correctly. VAT Bus. PG shows DOM on the invoice.
+- **Learnings**:
+  - Subscription Items must be Non-Inventory, not Service. Service type is for project billing items.
+  - "Billing Period" must be set in Arrange Texts on the global setup page, or document creation fails silently.
+  - Billing Proposal requires Billing to Date to cover the contract's Next Billing Date — otherwise the proposal is empty.
+  - Contract Type dropdown on the contract card has options (Harmonized, Billing, Customer, Subscription, Contracts) — left blank for now, needs exploration.
+- **Step-by-step guide**: `ai/guides/subscription-billing-setup.md` (client-deliverable)
 
 ### Formpipe — TimeLog discovery
 
@@ -784,16 +921,22 @@ BC allows different journal batches with different default balancing account typ
 
 ## 12. Open questions / things to learn next
 
-- Project Posting Groups in depth — WIP completion methods, when each fires, how to avoid the "close without final WIP" trap *(partially covered in §5.6 — need hands-on practice)*
-- Recurring billing in BC (Younium replacement question) — what BC offers natively
-- Multi-entity / intercompany — relevant for Formpipe SE/DK split
-- BC + Power BI as single source of truth (Therese explicitly asked for this)
-- Graph API / Business Central API patterns for automation (Python tooling Morre and I are building)
-- Sales Price Lists in detail — customer-specific, project-specific, resource-specific overrides
+- **WIP methods — 7 types, critical to get right** — Morre has done research, flagged that choosing the wrong one "fucks it up badly." Need hands-on practice together. *(partially covered in §5.6)*
+- ~~Recurring billing in BC (Younium replacement question) — what BC offers natively~~ **Resolved** — Option A confirmed (June 9), hands-on setup completed (June 12). See §11 Tinky status, `ai/reports/tinky-billing-scenarios.md`, and `ai/guides/subscription-billing-setup.md`.
+- Multi-entity / intercompany — relevant for Formpipe SE/DK split *(partially covered in new §3.5 on intercompany posting splits)*
+- BC + Power BI as single source of truth (Therese explicitly asked for this). Morre confirms Power BI is the aggregation layer for combining subscription + project revenue per customer.
+- Graph API / Business Central API patterns for automation (Python tooling Morre and I are building). Morre notes Python scripts via API as a 4th option for complex invoice generation.
+- **Sales Price Lists in detail** — customer-specific, project-specific, resource-specific, project+resource+work type overrides. Morre confirmed granularity is deep — need to explore.
 - Time Sheet feature — when to enable on Resource cards, approval flow setup
-- Dimensions strategy — when to use vs. when posting groups are sufficient (avoid Formpipe's dimension overload)
+- **Dimensions strategy** — Morre's position: "you should never use dimensions." Skipped over in session — need to unpack this. Current understanding: posting groups and proper registers (Resources, Projects) handle what people typically misuse dimensions for.
 - Revenue recognition timing for physical goods — Incoterms + BC's handling of shipped-not-invoiced *(Morre flagged he needs to research this further)*
 - Prepaid vs. post-pay account handling in carve-out scenarios — the 2171/1470 distinction and how to keep automated code safe
+- **VAT Prod. Posting Group correction** — sandbox currently uses `VAT25` etc. Need to rename to semantic names (`SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO`). Verify setup with Morre.
+- **Gen. Bus. Posting Group review** — verify whether current `EXT`/`NATIONAL` setup is correct or falls into the DOMESTIC/EXPORT anti-pattern Morre flagged. Dump and review with Morre.
+- **Subscription Package vs Subscription Agreement** — Morre couldn't fully explain the distinction either. Hands-on setup used Contract directly (no Package). Contract Type dropdown has options (Harmonized, Billing, Customer, Subscription, Contracts) — meaning unclear, left blank. Needs exploration.
+- **Bank reconciliation walkthrough with Masha** — postponed from June 11 session (closed period blocked the demo). Masha will show when caught up on April receipts, likely next week.
+- **BC native PDF-to-invoice scanning** — Masha and Morre both mentioned this. Morre's next project to set up.
+- **MB-800 certification gaps** — After June 30 (exam content update), map updated study guide against this playbook. Known gaps: data migration packages, security roles/permissions, purchase side, year-end close, financial reporting. Target Q4 2026. See FLIGHT-PLAN.md milestone M1.
 
 ---
 
@@ -812,3 +955,5 @@ BC allows different journal batches with different default balancing account typ
 |---------|------------|--------------------------------------------------------------------------------------------------|
 | 1.0     | 2026-06-04 | Consolidated from three Morre sessions + six architecture diagrams. Applied TXO look and feel.   |
 | 1.1     | 2026-06-05 | Added §6 operational patterns from Masha session (VAT rates, fixed assets, payment reconciliation, exchange rates). New gotchas. |
+| 1.2     | 2026-06-11 | Added §6.6 deferrals from Masha session (6 deferral codes, threshold rule, quarter-close pragmatism, T&M revenue deferral). Bank recon postponed. |
+| 1.3     | 2026-06-12 | Subscription Billing setup completed for Tiny Minds Lab AB. Full setup details, learnings, and gotchas added to §11. Step-by-step guide created at `ai/guides/subscription-billing-setup.md`. |
