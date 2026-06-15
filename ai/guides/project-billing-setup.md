@@ -1,7 +1,8 @@
 # Project Billing — Setup Guide
 
-**Version**: 0.9 (draft — billing step flagged for sandbox verification)
+**Version**: 1.0
 **Created**: 2026-06-15
+**Updated**: 2026-06-15 (Step 8 verified against sandbox dialog)
 **Author**: Tentixo AB
 **Scope**: End-to-end setup of project (job) billing in Business Central for ad-hoc, quoted engagements
 **Audience**: BC functional user or administrator
@@ -20,8 +21,6 @@ Setting up BC's Project Billing module to invoice a one-off, quoted engagement (
 **When to use this vs. Subscription Billing**: Project Billing is for **variable, evolving, quoted work** — new project per engagement. For **fixed recurring revenue** (retainers, managed services), use `subscription-billing-setup.md` instead. When both apply to one customer, they produce two separate invoices by design — see the Architecture note.
 
 **Prerequisites**: posting groups configured; if the customer is new, follow Steps 1–2, otherwise skip to Step 6.
-
-> ⚠️ **Draft status**: Steps 1–7 are captured from the completed Tiny Minds Lab engagement and Morre's prescribed flow. **Step 8 (Create Project Invoice)** describes the correct actions but a few dialog-level fields are marked **[VERIFY]** — confirm them in the sandbox before treating this as a final client deliverable.
 
 ---
 
@@ -161,22 +160,29 @@ For T&M: Resource lines are `Both Billable and Budget`; no separate Item line ne
 
 ## Step 8 — Create the Project Invoice
 
-**[VERIFY]** — the actions below are correct per Morre's flow; confirm the exact dialog fields in the sandbox before final sign-off.
-
 **Two ways to create the invoice:**
 
-1. **Global**: `Alt+Q` → "Create Project Sales Invoice" → OK. Takes **all** uninvoiced billable lines across projects.
+1. **Global**: `Alt+Q` → "Project Create Sales Invoice" → OK. Takes **all** uninvoiced billable lines, scoped by the filter below.
 2. **Per task line**: from the project task → Manage → Line → Documents → Create Sales Invoice. Invoices just that task — useful to bill pre-study separately from execution.
 
-In the **Create Project Sales Invoice** dialog **[VERIFY field names]**:
+The **Project Create Sales Invoice** dialog has two sections:
 
-| Field | Value |
-|---|---|
-| Posting Date | invoice date |
-| Document Date | invoice date |
-| Project No. filter | the project (when running globally for one project) |
+**Options**
 
-Click **OK**. BC generates a draft Sales Invoice linked to the project.
+| Field | Value | Notes |
+|---|---|---|
+| Posting Date | invoice date (e.g., `2026-06-15`) | |
+| Document Date | invoice date | |
+| Create Invoice per | **Project** | One invoice per project. Other option: **Project Task** (separate invoice per task) |
+
+**Filter: Project Task**
+
+| Field | Value | Notes |
+|---|---|---|
+| Project No. | the project | Scopes the run to one project; leave blank to bill all projects |
+| Project Task No. | a task | Optional — narrow to a single task |
+
+Click **OK** (or **Schedule…** to queue it). BC generates a draft Sales Invoice linked to the project.
 
 ### Review and post
 
