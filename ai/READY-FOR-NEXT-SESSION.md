@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-06-15
 **Risk Level**: LOW
-**Git Status**: Playbook + billing docs committed. Uncommitted: FLIGHT-PLAN.md, this file, /docs uploads.
+**Git Status**: Clean — all work committed (billing guides, config-export guide, WIP codebook, CoA export, Call 5 transcript).
 
 ---
 
@@ -21,18 +21,25 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 
 ## Session 2026-06-15
 
-- Committed playbooks + both billing guides + Tinky billing scenarios.
-- Deleted the 21 `Screenshot 2026-06-*` process screenshots (superseded by the subscription guide; never entered git history — contained client PII). Kept the named ERD/posting reference diagrams.
-- Added full **Subscription Option** enum to `subscription-billing-setup.md`.
-- Wrote `ai/guides/project-billing-setup.md` (v0.9 **draft**) — 8-step project billing flow, counterpart to the subscription guide.
+- Committed playbooks + both billing guides + Tinky billing scenarios + `/docs` uploads + FLIGHT-PLAN; added `.gitignore` rule for `.idea/`.
+- Both billing guides done: `subscription-billing-setup.md` (+ full Subscription Option enum) and `project-billing-setup.md` **v1.0** (Step 8 verified against the "Project Create Sales Invoice" dialog).
+- Added `ai/guides/config-package-xml-export.md` (Morre's RapidStart XML export method).
+- **Started the WIP chapter** (Morre Call 5, June 12): verified real WIP options via MS Learn (5 cost × 6 sales; 5 presets), exported CoA + Job Posting Group + General Posting Setup (`docs/PackageCOA.xml`), and drafted `ai/reports/wip-methods.md` (codebook + booking mapped to real J-EXT accounts). WIP confirmed **fully wired**.
+
+## Raise with Morre next session (WIP)
+
+1. **Confirm J-EXT** as the default Job Posting Group for external client projects — there is **no generic/domestic** job posting group; all 7 are group/intercompany variants (EXT, GRP-*, CTRL-*).
+2. **🐛 Fix J-GRP-OTHR wiring bug**: its *G/L Expense (Contract)* account is **3426** (a sales-applied account) but should be **3436** ("G/L Expenses Projects, GRP-OTHR") to match every other group's pattern.
+3. **Validate the codebook** (`ai/reports/wip-methods.md`) — the archetype→method recommendations in §4 are my reasoning, not yet Morre's rulings.
+4. **Decide the default WIP method** in Projects Setup, and which methods to offer as the standard menu.
 
 ## Next Task
 
-1. **Sandbox audit**: Rename VAT Prod. Posting Groups from VAT25 etc. to semantic names. Review Gen. Bus. Posting Groups.
-2. **Research WIP methods** with Morre — 7 types, choosing wrong one is catastrophic.
-3. **Optional**: commit/clean remaining `/docs` uploads (call transcripts, xlsx, NO_SERIES config package) and FLIGHT-PLAN.md.
+1. **Build the WIP testing playbook** — hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics. Lands in `ai/guides/`.
+2. **Sandbox audit**: Rename VAT Prod. Posting Groups from VAT25 etc. to semantic names. Review Gen. Bus. Posting Groups.
+3. (Optional) MB-800 study-guide gap mapping after June 30 (see FLIGHT-PLAN M1).
 
-✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), Project Billing guide **v1.0** (Step 8 verified against the "Project Create Sales Invoice" sandbox dialog).
+✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), both billing guides, config-package export guide, WIP codebook draft + account-wiring analysis.
 
 ## Key Decisions to Remember
 
