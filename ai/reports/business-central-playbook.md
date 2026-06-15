@@ -437,7 +437,7 @@ graph LR
 |--------------------------|--------------------------------------|
 | Gen. Bus. Posting Group  | `EXT`                                |
 | VAT Bus. Posting Group   | `EXT`                                |
-| Customer Posting Group   | `DOMESTIC`                           |
+| Customer Posting Group   | `EXT` (external customer → AR 1511)  |
 | Country/Region Code      | `SE`                                 |
 | Registration No.         | org.nr (e.g. `5566778899`)           |
 | VAT Registration No.     | `SE` + org.nr + `01`                 |
@@ -784,7 +784,7 @@ BC allows different journal batches with different default balancing account typ
 |---------------------------|-----------------------------------------------------------------------------------------------------------|
 | Gen. Bus. Posting Group   | `EXT`, `GRP-MOTH/DAUG/OTHR`, `CTRL-ASSO/JV/OTHR` (✅ reviewed — intercompany/group structure, **no** DOMESTIC/EXPORT geo split per §3.5) |
 | VAT Bus. Posting Group    | `DOM`, `EXP`, `ORG-EU`, per-country `IND-XX`, `VND-IND`, `SELF` (the country matrix)                       |
-| Customer Posting Group    | `DOMESTIC` (1511 AR), `INTERCO` (1565 AR) — *codes not yet verified (table 92 not exported)*               |
+| Customer Posting Group    | `EXT` (1511 AR), `GRP-MOTH/DAUG/OTHR` (1564/1565/1566), `CTRL-ASSO/JV/OTHR` (1577/1578/1579), `SKV` (1513, ROT/RUT deduction) |
 | Gen. Prod. Posting Group  | `C-MAIN1/2/3`, `C-MISC` (consulting); `S-MAIN1/2/3`, `S-MISC` (services); `G-MERCH/FINISHED/SEMI/RAW/ADD_NESS/MISC` (goods) |
 | VAT Prod. Posting Group   | `S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + reduced steps `S-MED/LOW/SLIM` — already semantic (no correction needed) |
 | Project (Job) Posting Group | `J-EXT` (external default), `J-GRP-*`, `J-CTRL-*` — WIP wired to 34xx/44xx (see WIP codebook)            |
@@ -931,7 +931,7 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 - ~~**VAT Prod. Posting Group correction**~~ **RESOLVED (2026-06-15)** — config export shows Tentixo already uses semantic codes (`S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + relative steps). No rename needed. `VAT25` lives only as the VAT Identifier (acceptable).
 - ~~**Gen. Bus. Posting Group review**~~ **RESOLVED (2026-06-15)** — groups are `EXT`/`GRP-*`/`CTRL-*` (intercompany/group structure). No DOMESTIC/EXPORT geo anti-pattern.
 - **Consulting tier semantics** — confirm with Morre what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`.
-- **Customer Posting Group codes** — verify `DOMESTIC`/`INTERCO` (table 92 not yet exported).
+- ~~**Customer Posting Group codes**~~ **RESOLVED (2026-06-15)** — real codes are `EXT` (1511), `GRP-*`, `CTRL-*`, and `SKV` (1513, ROT/RUT deduction). Mirror the Gen. Bus. structure.
 - **Subscription Package vs Subscription Agreement** — Morre couldn't fully explain the distinction either. Hands-on setup used Contract directly (no Package). Contract Type dropdown has options (Harmonized, Billing, Customer, Subscription, Contracts) — meaning unclear, left blank. Needs exploration.
 - **Bank reconciliation walkthrough with Masha** — postponed from June 11 session (closed period blocked the demo). Masha will show when caught up on April receipts, likely next week.
 - **BC native PDF-to-invoice scanning** — Masha and Morre both mentioned this. Morre's next project to set up.

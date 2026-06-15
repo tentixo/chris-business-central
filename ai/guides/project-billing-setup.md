@@ -43,7 +43,7 @@ Order matters because of layer dependencies — each step builds on the one befo
 |---|---|---|
 | Gen. Bus. Posting Group | `EXT` | |
 | VAT Bus. Posting Group | `EXT` | |
-| Customer Posting Group | `DOMESTIC` | |
+| Customer Posting Group | `EXT` | External customer → AR account 1511 |
 | Country/Region Code | `SE` | |
 | Registration No. | org.nr (e.g. `5566778899`) | On General FastTab (newer BC) or Invoicing FastTab (older) — **not** the same field as VAT Registration No. |
 | VAT Registration No. | `SE` + org.nr + `01` | Validate to auto-populate name/address |

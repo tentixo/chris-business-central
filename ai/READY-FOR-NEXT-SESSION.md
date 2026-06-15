@@ -43,7 +43,13 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 
 ### Small open verifications (need more exports / Morre)
 - **Consulting tier semantics** — what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`? (ask Morre)
-- **Customer Posting Group** codes (`DOMESTIC`/`INTERCO`) — export table 92 to verify.
+- ~~Customer Posting Group codes~~ **DONE** — `EXT`/`GRP-*`/`CTRL-*`/`SKV` verified (table 92). Tinky = `EXT`.
+
+### VAT gaps (Morre review, `ai/reports/vat-gaps-research.md`)
+- Enable + test **EC Sales List / VIES XML** export (verify `EU Service` flags).
+- Scope **SE VAT-return e-submission** format (SE localization vs partner extension).
+- Confirm exact **DK "tabellmoms"** scheme with Morre (BC can't auto-calc table VAT).
+- **Voluntary property VAT**: output wired (`S-RNT_FULL`); scope property-level admin.
 
 ✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), both billing guides, config-package export guide, WIP codebook draft + account-wiring analysis, MB-800 gap analysis, Gen. Bus. PG review.
 

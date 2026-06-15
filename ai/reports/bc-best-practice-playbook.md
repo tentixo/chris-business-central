@@ -175,7 +175,7 @@ BC's VAT Posting Setup matrix resolves the actual percentage by combining (who y
 | Gen. Prod. Posting Group | By cost-driver category (see §3.1) | Maps to the correct revenue/cost accounts |
 | VAT Bus. Posting Group | Per counterparty VAT status | Determines VAT treatment by counterparty |
 | VAT Prod. Posting Group | Per product/service type: `S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` | Determines VAT category (rate resolved by matrix) |
-| Customer Posting Group | `DOMESTIC`, `INTERCO` | Determines which AR account receives the receivable |
+| Customer Posting Group | Per counterparty relationship: `EXT`, `GRP-*`, `CTRL-*` (+ `SKV` for ROT/RUT) | Determines which AR account receives the receivable |
 
 ### 4.6 The DOMESTIC/EXPORT anti-pattern
 
