@@ -789,7 +789,10 @@ BC allows different journal batches with different default balancing account typ
 | VAT Prod. Posting Group   | `S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + reduced steps `S-MED/LOW/SLIM` — already semantic (no correction needed) |
 | Project (Job) Posting Group | `J-EXT` (external default), `J-GRP-*`, `J-CTRL-*` — WIP wired to 34xx/44xx (see WIP codebook)            |
 
-**Consulting tiers** (`C-MAIN1/2/3` → revenue 3211/3221/3231): the original placeholder narrative was employees / sub-consultants / training. ⚠️ The real semantic distinction between `C-MAIN1`, `C-MAIN2`, `C-MAIN3` is **unconfirmed** — verify intent with Morre.
+**Consulting revenue segments** (`C-MAIN1/2/3` → revenue 3211/3221/3231) — *Morre, June 15 2026*:
+- The `1/2/3` split has **no fixed meaning** — it is the **organisation's choice**, answering **"What are you selling, Where, and How?"** It's a revenue-segmentation decision per business, not a Tentixo standard.
+- The earlier placeholder narrative (employees / sub-consultants / under-education) was wrong for the *revenue* side. **Staff / Contractors / Under-education is a cost-side concept on `4nnn` accounts**, not a Gen. Prod. revenue group.
+- **CoA-granularity principle**: the chart of accounts (and the IS/BS reports built from it) is deliberately **low granularity** — "what you always want to see, and is *safe to show the bank* without leaking high-granularity competitive detail." High granularity belongs elsewhere (projects, registers, Power BI), not in the CoA.
 
 ---
 
@@ -930,7 +933,7 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 - Prepaid vs. post-pay account handling in carve-out scenarios — the 2171/1470 distinction and how to keep automated code safe
 - ~~**VAT Prod. Posting Group correction**~~ **RESOLVED (2026-06-15)** — config export shows Tentixo already uses semantic codes (`S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + relative steps). No rename needed. `VAT25` lives only as the VAT Identifier (acceptable).
 - ~~**Gen. Bus. Posting Group review**~~ **RESOLVED (2026-06-15)** — groups are `EXT`/`GRP-*`/`CTRL-*` (intercompany/group structure). No DOMESTIC/EXPORT geo anti-pattern.
-- **Consulting tier semantics** — confirm with Morre what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`.
+- ~~**Consulting tier semantics**~~ **RESOLVED (2026-06-15)** — `C-MAIN1/2/3` is the org's revenue-segmentation choice ("What/Where/How are you selling?"), not a fixed standard; CoA kept low-granularity (bank-safe). Staff/Contractor/Education is cost-side (4nnn).
 - ~~**Customer Posting Group codes**~~ **RESOLVED (2026-06-15)** — real codes are `EXT` (1511), `GRP-*`, `CTRL-*`, and `SKV` (1513, ROT/RUT deduction). Mirror the Gen. Bus. structure.
 - **Subscription Package vs Subscription Agreement** — Morre couldn't fully explain the distinction either. Hands-on setup used Contract directly (no Package). Contract Type dropdown has options (Harmonized, Billing, Customer, Subscription, Contracts) — meaning unclear, left blank. Needs exploration.
 - **Bank reconciliation walkthrough with Masha** — postponed from June 11 session (closed period blocked the demo). Masha will show when caught up on April receipts, likely next week.

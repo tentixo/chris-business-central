@@ -42,7 +42,7 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 3. **MB-800**: gap analysis done → `ai/reports/mb800-gap-analysis.md`. Drive targeted sandbox exercises for the 🔴 gaps (journals/payments, inventory txns, fixed assets, security, dimensions, AP/purchasing). Note: Projects/WIP is *not* a dedicated exam domain.
 
 ### Small open verifications (need more exports / Morre)
-- **Consulting tier semantics** — what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`? (ask Morre)
+- ~~Consulting tier semantics~~ **DONE (Morre, 2026-06-15)** — `C-MAIN1/2/3` = org's revenue-segmentation choice ("What/Where/How are you selling?"), low-granularity & bank-safe; Staff/Contractor/Education is cost-side (4nnn). Captured in playbook + [[feedback-morre-conventions]] #12.
 - ~~Customer Posting Group codes~~ **DONE** — `EXT`/`GRP-*`/`CTRL-*`/`SKV` verified (table 92). Tinky = `EXT`.
 
 ### VAT gaps (Morre review, `ai/reports/vat-gaps-research.md`)
