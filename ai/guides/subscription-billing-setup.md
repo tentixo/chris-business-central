@@ -66,6 +66,15 @@ The item represents what you're billing for on the subscription. It's separate f
 | Unit Price | `0` | Price is set on the contract, not the item |
 | **Subscription Option** | **Subscription Item** | Found on the Prices & Sales FastTab. Marks this item as subscription-only — it won't appear in regular sales invoices or project billing |
 
+**Subscription Option values** (the full enum on the Prices & Sales FastTab):
+
+| Value | Meaning |
+|---|---|
+| **No Subscription** | Default. Ordinary item, no subscription behaviour. |
+| **Sales with Subscription** | Item can be sold normally *and* drive a subscription (e.g., hardware sold with an attached service plan). |
+| **Subscription Item** | Subscription-only — won't appear in regular sales invoices or project billing. Use this for a pure retainer. |
+| **Invoicing Item** | Used as the billing line on the generated invoice, not the subscribed item itself. |
+
 **Why Non-Inventory?** The "Subscription Item" option requires Type = Non-Inventory. This is correct for a recurring billing item — there's no stock to track, and the subscription engine drives the billing, not a shipment or service delivery event.
 
 ---
