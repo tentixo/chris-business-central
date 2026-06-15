@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-06-15
 **Risk Level**: LOW
-**Git Status**: "Full Tentixo" doc reconciliation + VAT export in progress (uncommitted).
+**Git Status**: Clean — all session work committed (15 commits). See `ai/reports/session-summary_2026-06-15.md`.
 
 ---
 
