@@ -153,16 +153,17 @@ When BC posts a journal entry, it reads up to five posting controls:
 
 Using `VAT25` as a VAT Product Posting Group is an anti-pattern. The problem: 25% is the Swedish rate, but the same item sold to an individual in Poland carries 20% VAT. If the group is called `VAT25`, the setup cannot handle cross-border sales without duplication or manual overrides.
 
-Instead, use semantic names that describe the *type* of product/service:
+Instead, use semantic names that describe the *type* of product/service. Tentixo's actual codes (prefix `S-` services, `G-` goods) use **relative rate steps** rather than a baked-in percentage, so the code never has to change when a rate does:
 
-| Semantic name | What it covers | Rate determined by |
+| Tentixo code | What it covers | Rate determined by |
 |---|---|---|
-| `SERVICE FULL` | Services at the standard rate | BC's VAT matrix: 25% in SE, 20% in PL, etc. |
-| `GOODS FULL` | Physical goods at the standard rate | Same matrix, different rules for goods |
-| `ELECTRONIC SERVICE` | Self-serve digital services | Special EU cross-border rules |
-| `ZERO` | VAT-exempt items | Always 0% |
+| `S-FULL` | Services at the standard rate | BC's VAT matrix: 25% in SE, 20% in PL, etc. |
+| `G-FULL` | Physical goods at the standard rate | Same matrix, different rules for goods |
+| `S-ESVC` | Self-serve digital (electronic) services | Special EU cross-border rules |
+| `S-ZERO` / `G-ZERO` | VAT-exempt items | Always 0% |
+| `S-MED` / `S-LOW` / `S-SLIM` (and `G-*`) | Reduced-rate steps (−1 / −2 / −3 below full) | Matrix resolves the actual reduced rate |
 
-BC's VAT Posting Setup matrix resolves the actual percentage by combining (who you sell to × what VAT category). The percentage is a *result* of the matrix lookup, not an input.
+BC's VAT Posting Setup matrix resolves the actual percentage by combining (who you sell to × what VAT category). The percentage is a *result* of the matrix lookup, not an input. (`VAT25` survives only as the **VAT Identifier** used for VAT-return grouping — that's a separate, acceptable use.)
 
 **Individual ≠ physical person for VAT.** A non-VAT-registered organisation (NGO, municipality) is treated as an "individual" in the VAT matrix — the distinction is VAT registration status, not legal form.
 
@@ -173,7 +174,7 @@ BC's VAT Posting Setup matrix resolves the actual percentage by combining (who y
 | Gen. Bus. Posting Group | Based on business relationship — avoid geography-based splits (see §4.6) | Maps to correct revenue/cost accounts |
 | Gen. Prod. Posting Group | By cost-driver category (see §3.1) | Maps to the correct revenue/cost accounts |
 | VAT Bus. Posting Group | Per counterparty VAT status | Determines VAT treatment by counterparty |
-| VAT Prod. Posting Group | Per product/service type: `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO` | Determines VAT category (rate resolved by matrix) |
+| VAT Prod. Posting Group | Per product/service type: `S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` | Determines VAT category (rate resolved by matrix) |
 | Customer Posting Group | `DOMESTIC`, `INTERCO` | Determines which AR account receives the receivable |
 
 ### 4.6 The DOMESTIC/EXPORT anti-pattern
@@ -388,7 +389,7 @@ Item      → Gen. Prod. Posting Group → WHAT
               VAT Posting Setup       → VAT Account + Rate
 ```
 
-A retainer item with Gen. Prod. Posting Group `CONSULTING1` lands on the same 32xx Human/Consulting revenue accounts as project billing — because the posting groups control where the money lands, not which billing engine generated the invoice.
+A retainer item with Gen. Prod. Posting Group `C-MAIN1` lands on the same 32xx Human/Consulting revenue accounts as project billing — because the posting groups control where the money lands, not which billing engine generated the invoice.
 
 ### 7.5 Scalability
 
@@ -457,7 +458,7 @@ These are the patterns we most frequently encounter in BC implementations that h
 | **WIP not finalized before project close** | Orphaned WIP entries on the balance sheet | Project closed without running the final WIP calculation | Always run WIP to completion before changing project status |
 | **Mixing pre-pay and post-pay accounts** | Automated reports produce incorrect figures | Correction entries booked to wrong account type | Account type determines how code and reports interpret the entry — be precise |
 | **Geography-based Gen. Bus. Posting Groups** | CoA inflated 5–7×, "Export" ambiguous for Ship-to/Pay-to/Sell-to splits | Baking geography into posting groups instead of using customer/vendor card data | Use Gen. Bus. Posting Group for business relationship type; geography lives on the customer card (see §4.6) |
-| **Percentage-based VAT Prod. Posting Groups** | Can't sell cross-border (VAT25 = 25% in SE but 20% in PL) | VAT rate hardcoded into group name | Use semantic names (SERVICE FULL, GOODS FULL) — BC resolves the rate via the VAT matrix (see §4.4) |
+| **Percentage-based VAT Prod. Posting Groups** | Can't sell cross-border (`VAT25` = 25% in SE but 20% in PL) | VAT rate hardcoded into group name | Use semantic names (`S-FULL`, `G-FULL`) — BC resolves the rate via the VAT matrix (see §4.4) |
 | **Mixing subscription and project billing** | Legal/contractual confusion, project P&L never closes | Subscription lines added to project containers | Keep subscription billing in its own module (see §7) — aggregation happens in Power BI, not on the invoice (see §6.1) |
 
 ---

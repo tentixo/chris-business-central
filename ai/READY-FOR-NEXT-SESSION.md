@@ -2,7 +2,7 @@
 
 **Last Updated**: 2026-06-15
 **Risk Level**: LOW
-**Git Status**: Clean — all work committed (billing guides, config-export guide, WIP codebook, CoA export, Call 5 transcript).
+**Git Status**: "Full Tentixo" doc reconciliation + VAT export in progress (uncommitted).
 
 ---
 
@@ -25,6 +25,8 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 - Both billing guides done: `subscription-billing-setup.md` (+ full Subscription Option enum) and `project-billing-setup.md` **v1.0** (Step 8 verified against the "Project Create Sales Invoice" dialog).
 - Added `ai/guides/config-package-xml-export.md` (Morre's RapidStart XML export method).
 - **Started the WIP chapter** (Morre Call 5, June 12): verified real WIP options via MS Learn (5 cost × 6 sales; 5 presets), exported CoA + Job Posting Group + General Posting Setup (`docs/PackageCOA.xml`), and drafted `ai/reports/wip-methods.md` (codebook + booking mapped to real J-EXT accounts). WIP confirmed **fully wired**.
+- **"Full Tentixo" decision** — all docs now use the **real Tentixo posting codes** (verified from `docs/PackageVAT1.xml` + `docs/PackageCOA.xml`), not MS-default placeholders. Replaced `CONSULTING1→C-MAIN1`, `SERVICE FULL/VAT25→S-FULL`, `GOODS FULL→G-FULL`, `ELECTRONIC SERVICE→S-ESVC`, `ZERO→S-ZERO/G-ZERO` across both playbooks, both billing guides, and Tinky scenarios. See memories [[feedback-full-tentixo-best-practice]] + [[reference-tentixo-real-posting-codes]].
+- **Sandbox audit = both halves clean** ✅: VAT Prod groups already semantic (no rename needed — `VAT25` only lives as the VAT Identifier); Gen. Bus. groups intercompany (no DOMESTIC/EXPORT anti-pattern).
 
 ## Raise with Morre next session (WIP)
 
@@ -36,10 +38,12 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 ## Next Task
 
 1. **Build the WIP testing playbook** — hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics. Lands in `ai/guides/`.
-2. **Sandbox audit — VAT rename** (the remaining half): need a config-package export of **VAT Product Posting Group (290) + VAT Business Posting Group (289) + VAT Posting Setup (325)**, then I produce the `VAT25 → SERVICE FULL` rename plan + verify the matrix. (Chris executes the rename in BC.)
-   - ✅ **Gen. Bus. PG review done** — no DOMESTIC/EXPORT anti-pattern; groups are intercompany (EXT/GRP-*/CTRL-*), which is legitimate.
-   - ⚠️ **Reconcile**: guides reference `CONSULTING1` but sandbox Gen. Prod. groups are `C-MAIN1/2/3, C-MISC, S-*, G-*`.
+2. ~~Sandbox audit~~ **DONE** — both halves clean (see Session notes). No VAT rename needed; Gen. Bus. groups fine.
 3. **MB-800**: gap analysis done → `ai/reports/mb800-gap-analysis.md`. Drive targeted sandbox exercises for the 🔴 gaps (journals/payments, inventory txns, fixed assets, security, dimensions, AP/purchasing). Note: Projects/WIP is *not* a dedicated exam domain.
+
+### Small open verifications (need more exports / Morre)
+- **Consulting tier semantics** — what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`? (ask Morre)
+- **Customer Posting Group** codes (`DOMESTIC`/`INTERCO`) — export table 92 to verify.
 
 ✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), both billing guides, config-package export guide, WIP codebook draft + account-wiring analysis, MB-800 gap analysis, Gen. Bus. PG review.
 

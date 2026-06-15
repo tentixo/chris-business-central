@@ -69,8 +69,8 @@ The item is the invoiceable deliverable (e.g., the fixed-price Heat Map).
 |---|---|---|
 | Type | **Service** | Service type is for project billing items (contrast: subscription items must be Non-Inventory) |
 | Base Unit of Measure | `EA` | International standard; PCS maps to EA internally |
-| Gen. Prod. Posting Group | `CONSULTING1` | Human-bound delivery → controls revenue account |
-| VAT Prod. Posting Group | `SERVICE FULL` | Semantic name, **not** `VAT25` (percentage-based names are an anti-pattern) |
+| Gen. Prod. Posting Group | `C-MAIN1` | Consulting — human-bound delivery → controls revenue account (3211) |
+| VAT Prod. Posting Group | `S-FULL` | Services, full VAT. Semantic name, **not** `VAT25` (percentage-based names are an anti-pattern) |
 | Inventory Posting Group | blank | Service item, no stock |
 | Unit Price | `0` or a reference/catalogue price | Real prices come from price lists or the journal override — don't lock pricing into the item |
 
@@ -88,8 +88,8 @@ The resource is the consultant's billable capacity.
 | Base Unit of Measure | `HOUR` | |
 | Unit Cost | `560` | Internal cost rate |
 | Unit Price | `1400` | Default sell rate — override per client/project |
-| Gen. Prod. Posting Group | `CONSULTING1` | |
-| VAT Prod. Posting Group | `SERVICE FULL` | Semantic, not percentage-based |
+| Gen. Prod. Posting Group | `C-MAIN1` | Consulting (revenue 3211) |
+| VAT Prod. Posting Group | `S-FULL` | Services, full VAT — semantic, not percentage-based |
 
 **Trap**: Unit Cost and Unit Price sit next to each other. Don't change Unit Cost when you mean Unit Price.
 

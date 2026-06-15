@@ -34,19 +34,19 @@
 
 | Item No. | Description | Type | Gen. Prod. PG | VAT Prod. PG | Unit Price |
 |----------|-------------|------|---------------|--------------|------------|
-| `HM-LITE` | Heat Map Lite (exists) | Service | CONSULTING1 | VAT25 | 0 (override via price list) |
-| `SEC-RETAINER` | Monthly Security Retainer | Service | CONSULTING1 | VAT25 | 0 (override via price list or subscription) |
-| `SEC-PROJECT` | Security Project Work | Service | CONSULTING1 | VAT25 | 0 (override via price list) |
+| `HM-LITE` | Heat Map Lite (exists) | Service | C-MAIN1 | S-FULL | 0 (override via price list) |
+| `SEC-RETAINER` | Monthly Security Retainer | Service | C-MAIN1 | S-FULL | 0 (override via price list or subscription) |
+| `SEC-PROJECT` | Security Project Work | Service | C-MAIN1 | S-FULL | 0 (override via price list) |
 
-All items land on **32xx** (Human/Consulting) accounts through the CONSULTING1 posting group — retainer is human-bound regardless of the flat-fee pricing model (GVH litmus test: remove humans, can we still deliver? No.).
+All items land on **32xx** (Human/Consulting) accounts through the C-MAIN1 posting group — retainer is human-bound regardless of the flat-fee pricing model (GVH litmus test: remove humans, can we still deliver? No.).
 
 ### Posting group flow (same for all options)
 
 ```
 Customer: Tiny Minds → Cust. Posting Group → Receivables account (1510/1511)
-Item: SEC-RETAINER   → Gen. Prod. PG: CONSULTING1 → Revenue account (32xx)
-Item: SEC-PROJECT    → Gen. Prod. PG: CONSULTING1 → Revenue account (32xx)
-VAT:                 → Bus: DOMESTIC × Prod: VAT25 → 25% VAT account (2611)
+Item: SEC-RETAINER   → Gen. Prod. PG: C-MAIN1 → Revenue account (32xx)
+Item: SEC-PROJECT    → Gen. Prod. PG: C-MAIN1 → Revenue account (32xx)
+VAT:                 → Bus: DOM × Prod: S-FULL → 25% VAT account (2611)
 ```
 
 Posting groups are identical across all three options — the difference is **which billing engine generates the invoice lines**, not where the money lands in the ledger.

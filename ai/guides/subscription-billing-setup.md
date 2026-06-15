@@ -61,8 +61,8 @@ The item represents what you're billing for on the subscription. It's separate f
 | Description | What appears on the invoice (e.g., "Monthly Security Retainer") | |
 | Type | **Non-Inventory** | Required for Subscription Items |
 | Base Unit of Measure | `EA` | |
-| Gen. Prod. Posting Group | Match your service category (e.g., `CONSULTING1`) | Controls which revenue account the invoice hits |
-| VAT Prod. Posting Group | Match your VAT category (e.g., `SERVICE FULL`) | |
+| Gen. Prod. Posting Group | Match your service category (Tentixo: `C-MAIN1` consulting) | Controls which revenue account the invoice hits (3211) |
+| VAT Prod. Posting Group | Match your VAT category (Tentixo: `S-FULL` services full VAT) | Semantic, not percentage-based |
 | Unit Price | `0` | Price is set on the contract, not the item |
 | **Subscription Option** | **Subscription Item** | Found on the Prices & Sales FastTab. Marks this item as subscription-only — it won't appear in regular sales invoices or project billing |
 

@@ -106,7 +106,7 @@ Tentixo's chart of accounts is organised around three sales categories. The CoA'
 
 **CoA intent = cost structure, not product type.** A Virtual item (e.g., a fixed-price package) can land on a Human/Consulting account (32xx) if it's human-bound — because the chart of accounts exposes *what costs the company carries* (employees, HR, shipping), not what the deliverable looks like. This is the conversation you need to have with every client and they never have time for.
 
-**VAT subcategory — Electronic Service**: Within Virtual, there's a VAT-significant distinction. A license downloaded from a website = electronic service (specific VAT rules for cross-border EU). Same license shipped on a CD-ROM = still Virtual, but not electronic service. Reactive support *can* be electronic service if minimal human involvement; heavy support is just "service." The VAT Prod. Posting Group handles this (separate rows in the VAT Posting Setup for SERVICE vs ELECTRONIC SERVICE).
+**VAT subcategory — Electronic Service**: Within Virtual, there's a VAT-significant distinction. A license downloaded from a website = electronic service (specific VAT rules for cross-border EU). Same license shipped on a CD-ROM = still Virtual, but not electronic service. Reactive support *can* be electronic service if minimal human involvement; heavy support is just "service." The VAT Prod. Posting Group handles this (separate rows in the VAT Posting Setup for `S-FULL` services vs `S-ESVC` electronic services).
 
 ### 3.3 BC module map
 
@@ -178,12 +178,12 @@ graph LR
 
 BC's core elegance — and the lens Morre uses to evaluate every implementation:
 
-- **Business Posting Group** on the Customer = WHO we sell to (EXT, NATIONAL, INTERCO)
-- **Product Posting Group** on the Item/Resource = WHAT we sell (CONSULTING1/2/3, SERVICES, GOODS)
+- **Business Posting Group** on the Customer = WHO we sell to (Tentixo: `EXT`, `GRP-MOTH/DAUG/OTHR`, `CTRL-ASSO/JV/OTHR`)
+- **Product Posting Group** on the Item/Resource = WHAT we sell (Tentixo: `C-MAIN1/2/3` consulting, `S-MAIN1/2/3` services, `G-*` goods)
 - **General Posting Setup** = the matrix that maps every (WHO, WHAT) combination to a specific G/L revenue account
 - **Same logic for VAT**: VAT Bus × VAT Prod → correct moms rate + accounts
 
-**VAT Prod. Posting Groups must be semantic, not percentage-based.** Using `VAT25` as a posting group name is an anti-pattern — 25% is the Swedish rate, but the same item sold to an individual in Poland is 20%. If the group is called `VAT25`, you can't sell to Poland. Instead, use names like `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`. BC's VAT Posting Setup matrix handles the country-specific percentage: it sees (who you sell to × what VAT category) and applies the correct rate (25% in Sweden, 20% in Poland, 0% for VAT-exempt). The percentage is a *result* of the matrix lookup, not an input.
+**VAT Prod. Posting Groups must be semantic, not percentage-based.** Using `VAT25` as a posting group name is an anti-pattern — 25% is the Swedish rate, but the same item sold to an individual in Poland is 20%. If the group is called `VAT25`, you can't sell to Poland. Tentixo instead uses semantic codes with **relative rate steps**: `S-FULL`/`G-FULL` (full), `S-MED`/`S-LOW`/`S-SLIM` (reduced steps), `S-ESVC` (electronic services), `S-ZERO`/`G-ZERO` (exempt), plus reverse-charge variants (`S-REV_FULL`). BC's VAT Posting Setup matrix handles the country-specific percentage: it sees (who you sell to × what VAT category) and applies the correct rate (25% in Sweden, 20% in Poland, 0% for VAT-exempt). The percentage is a *result* of the matrix lookup, not an input. (`VAT25` survives only as the **VAT Identifier** for VAT-return grouping — a separate, acceptable use.)
 
 **Individual ≠ physical person for VAT purposes.** An organisation can be an "individual" for VAT — NGOs, municipalities (kommuner), and other non-VAT-registered entities are treated as individuals in the VAT matrix even though they're organisations. The distinction is VAT registration, not legal form.
 
@@ -457,8 +457,8 @@ Watch for duplicate contacts if the same company is both customer and vendor (Id
 |--------------------------|--------------------------------------|
 | Type                     | `Service`                            |
 | Base Unit of Measure     | `EA` (international standard; PCS maps to EA internally) |
-| Gen. Prod. Posting Group | `CONSULTING1` (Human-bound delivery) |
-| VAT Prod. Posting Group  | `SERVICE FULL` (not `VAT25` — see §3.4 on why percentage-based names are an anti-pattern) |
+| Gen. Prod. Posting Group | `C-MAIN1` (Consulting, human-bound delivery → revenue 3211) |
+| VAT Prod. Posting Group  | `S-FULL` (Services full VAT — not `VAT25`; see §3.4 on why percentage-based names are an anti-pattern) |
 | Inventory Posting Group  | blank                                |
 | Unit Price               | `0` or reference/catalogue price (real prices via price lists — see §5.4) |
 
@@ -470,8 +470,8 @@ Watch for duplicate contacts if the same company is both customer and vendor (Id
 | Base Unit of Measure     | `HOUR`                                             |
 | Unit Cost                | `560` (my internal cost rate)                      |
 | Unit Price               | `1400` (default sell rate — override per client/project) |
-| Gen. Prod. Posting Group | `CONSULTING1`                                      |
-| VAT Prod. Posting Group  | `SERVICE FULL` (semantic, not percentage-based)     |
+| Gen. Prod. Posting Group | `C-MAIN1` (Consulting)                              |
+| VAT Prod. Posting Group  | `S-FULL` (Services full VAT — semantic, not percentage-based) |
 
 **Trap**: Unit Cost and Unit Price sit next to each other. Don't change Unit Cost when you mean Unit Price (Morre caught me on this).
 
@@ -782,17 +782,14 @@ BC allows different journal batches with different default balancing account typ
 
 | Group type                | Codes in use                                                                                              |
 |---------------------------|-----------------------------------------------------------------------------------------------------------|
-| Gen. Bus. Posting Group   | `EXT`, `NATIONAL`, `INTERCO` (**note**: DOMESTIC/EXPORT split is an anti-pattern per §3.5 — review needed) |
-| VAT Bus. Posting Group    | `EXT`, `NATIONAL`                                                                                         |
-| Customer Posting Group    | `DOMESTIC` (1511 AR), `INTERCO` (1565 AR)                                                                 |
-| Gen. Prod. Posting Group  | `CONSULTING1` (employees), `CONSULTING2` (sub-consultants), `CONSULTING3` (training, cost-only), `SERVICES`, `GOODS` |
-| VAT Prod. Posting Group   | Should be semantic: `SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO` (sandbox currently uses `VAT25` etc. — needs correction per §3.4) |
-| Project Posting Group     | (consulting-aligned, with WIP account on 34xx)                                                            |
+| Gen. Bus. Posting Group   | `EXT`, `GRP-MOTH/DAUG/OTHR`, `CTRL-ASSO/JV/OTHR` (✅ reviewed — intercompany/group structure, **no** DOMESTIC/EXPORT geo split per §3.5) |
+| VAT Bus. Posting Group    | `DOM`, `EXP`, `ORG-EU`, per-country `IND-XX`, `VND-IND`, `SELF` (the country matrix)                       |
+| Customer Posting Group    | `DOMESTIC` (1511 AR), `INTERCO` (1565 AR) — *codes not yet verified (table 92 not exported)*               |
+| Gen. Prod. Posting Group  | `C-MAIN1/2/3`, `C-MISC` (consulting); `S-MAIN1/2/3`, `S-MISC` (services); `G-MERCH/FINISHED/SEMI/RAW/ADD_NESS/MISC` (goods) |
+| VAT Prod. Posting Group   | `S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + reduced steps `S-MED/LOW/SLIM` — already semantic (no correction needed) |
+| Project (Job) Posting Group | `J-EXT` (external default), `J-GRP-*`, `J-CTRL-*` — WIP wired to 34xx/44xx (see WIP codebook)            |
 
-**CONSULTING tiers**:
-- `CONSULTING1` — employees (highest margin)
-- `CONSULTING2` — sub-consultants (e.g., Jeff)
-- `CONSULTING3` — consultants in training (cost only, not sold)
+**Consulting tiers** (`C-MAIN1/2/3` → revenue 3211/3221/3231): the original placeholder narrative was employees / sub-consultants / training. ⚠️ The real semantic distinction between `C-MAIN1`, `C-MAIN2`, `C-MAIN3` is **unconfirmed** — verify intent with Morre.
 
 ---
 
@@ -855,8 +852,8 @@ BC allows different journal batches with different default balancing account typ
 - **Engagement**: Heat Map project (incl. 2 workshops), agreed 18,000 SEK ex moms
 - **Customer card**: created in Tentixo sandbox. VAT validated, address populated (had to cut/paste from one-line VAT lookup). Country/Region SE set.
 - **Contact card**: auto-created from customer. Person contacts to be added.
-- **Item**: `HM-LITE`, Service type, CONSULTING1, VAT Prod PG needs correction (currently VAT25 → should be SERVICE FULL). Unit Price = 0 (override on invoice). Morre set a reference price of 28k on the item — acceptable as a catalogue reference.
-- **Resource**: Chris (Person, HOUR, CONSULTING1, VAT Prod PG needs correction, cost 560, price 1400)
+- **Item**: `HM-LITE`, Service type, Gen. Prod. `C-MAIN1`, VAT Prod. `S-FULL`. Unit Price = 0 (override on invoice). Morre set a reference price of 28k on the item — acceptable as a catalogue reference.
+- **Resource**: Chris (Person, HOUR, Gen. Prod. `C-MAIN1`, VAT Prod. `S-FULL`, cost 560, price 1400)
 - **Employee**: Chris — record exists, linked to Resource
 - **Project**: linked to Tinky, one task (`ITSEC`). Person Responsible = Chris (from Contacts). WIP method = Sales Value.
 - **Status**: **First invoice posted** (May 27, 2026). Item line: 1× HM-LITE @ 18,000 SEK. Posted to ledger, visible in posted sales invoices.
@@ -882,7 +879,7 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
   - Number Series assigned: `S-CON` (Customer Contracts), `P-CON` (Vendor Contracts), `SUB-NO` (Subscriptions)
   - Defaults: Billing Base Period `1M`, Billing Rhythm `1M`, Period Calculation "Align to Start of Month", Deferrals "Contract-dependent"
   - Invoice Details → Arrange Texts → Description = **"Billing Period"** (required — without this, Create Documents fails with "Faktureringsperiod" error)
-- **Item**: `SEC-RETAINER`, Type = **Non-Inventory** (not Service — "Subscription Item" option requires Non-Inventory), Subscription Option = **Subscription Item**, Gen. Prod. PG = CONSULTING1, Unit Price = 0 (price on contract)
+- **Item**: `SEC-RETAINER`, Type = **Non-Inventory** (not Service — "Subscription Item" option requires Non-Inventory), Subscription Option = **Subscription Item**, Gen. Prod. PG = `C-MAIN1`, VAT Prod. = `S-FULL`, Unit Price = 0 (price on contract)
 - **Customer Subscription Contract**: `B-SCC00001`, Tiny Minds Lab AB, Contact: Kaveh Pourshahidi, Active, Create Contract Deferrals = Off
   - Line: SEC-RETAINER, Qty 1, Calculation Base Amount 15,000, Billing Rhythm 1M, Start Date 2026-07-01
 - **Billing Template**: `MONTHLY-RET`, Partner = Customer (reusable across all retainer clients)
@@ -931,8 +928,10 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 - **Dimensions strategy** — Morre's position: "you should never use dimensions." Skipped over in session — need to unpack this. Current understanding: posting groups and proper registers (Resources, Projects) handle what people typically misuse dimensions for.
 - Revenue recognition timing for physical goods — Incoterms + BC's handling of shipped-not-invoiced *(Morre flagged he needs to research this further)*
 - Prepaid vs. post-pay account handling in carve-out scenarios — the 2171/1470 distinction and how to keep automated code safe
-- **VAT Prod. Posting Group correction** — sandbox currently uses `VAT25` etc. Need to rename to semantic names (`SERVICE FULL`, `GOODS FULL`, `ELECTRONIC SERVICE`, `ZERO`). Verify setup with Morre.
-- **Gen. Bus. Posting Group review** — verify whether current `EXT`/`NATIONAL` setup is correct or falls into the DOMESTIC/EXPORT anti-pattern Morre flagged. Dump and review with Morre.
+- ~~**VAT Prod. Posting Group correction**~~ **RESOLVED (2026-06-15)** — config export shows Tentixo already uses semantic codes (`S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + relative steps). No rename needed. `VAT25` lives only as the VAT Identifier (acceptable).
+- ~~**Gen. Bus. Posting Group review**~~ **RESOLVED (2026-06-15)** — groups are `EXT`/`GRP-*`/`CTRL-*` (intercompany/group structure). No DOMESTIC/EXPORT geo anti-pattern.
+- **Consulting tier semantics** — confirm with Morre what distinguishes `C-MAIN1` / `C-MAIN2` / `C-MAIN3`.
+- **Customer Posting Group codes** — verify `DOMESTIC`/`INTERCO` (table 92 not yet exported).
 - **Subscription Package vs Subscription Agreement** — Morre couldn't fully explain the distinction either. Hands-on setup used Contract directly (no Package). Contract Type dropdown has options (Harmonized, Billing, Customer, Subscription, Contracts) — meaning unclear, left blank. Needs exploration.
 - **Bank reconciliation walkthrough with Masha** — postponed from June 11 session (closed period blocked the demo). Masha will show when caught up on April receipts, likely next week.
 - **BC native PDF-to-invoice scanning** — Masha and Morre both mentioned this. Morre's next project to set up.
