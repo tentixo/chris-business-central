@@ -36,10 +36,12 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 ## Next Task
 
 1. **Build the WIP testing playbook** — hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics. Lands in `ai/guides/`.
-2. **Sandbox audit**: Rename VAT Prod. Posting Groups from VAT25 etc. to semantic names. Review Gen. Bus. Posting Groups.
-3. (Optional) MB-800 study-guide gap mapping after June 30 (see FLIGHT-PLAN M1).
+2. **Sandbox audit — VAT rename** (the remaining half): need a config-package export of **VAT Product Posting Group (290) + VAT Business Posting Group (289) + VAT Posting Setup (325)**, then I produce the `VAT25 → SERVICE FULL` rename plan + verify the matrix. (Chris executes the rename in BC.)
+   - ✅ **Gen. Bus. PG review done** — no DOMESTIC/EXPORT anti-pattern; groups are intercompany (EXT/GRP-*/CTRL-*), which is legitimate.
+   - ⚠️ **Reconcile**: guides reference `CONSULTING1` but sandbox Gen. Prod. groups are `C-MAIN1/2/3, C-MISC, S-*, G-*`.
+3. **MB-800**: gap analysis done → `ai/reports/mb800-gap-analysis.md`. Drive targeted sandbox exercises for the 🔴 gaps (journals/payments, inventory txns, fixed assets, security, dimensions, AP/purchasing). Note: Projects/WIP is *not* a dedicated exam domain.
 
-✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), both billing guides, config-package export guide, WIP codebook draft + account-wiring analysis.
+✅ Done since last session: playbook commit, Subscription Billing setup for Tinky (B-SCC00001 / MONTHLY-RET / draft invoice B-SX000004), both billing guides, config-package export guide, WIP codebook draft + account-wiring analysis, MB-800 gap analysis, Gen. Bus. PG review.
 
 ## Key Decisions to Remember
 
@@ -68,7 +70,6 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 
 ## Formpipe Next Steps
 
-- Follow-up with Therese for sample fakturaunderlag PDFs
-- Excavate the Gurra-Therese BC time-reporting solution
 - Decide Finance team and STG BI scope
 - Get customer ID mapping table
+- ~~Therese fakturaunderlag PDFs / Gurra-Therese time-reporting solution~~ **Dropped (2026-06-15)** — not pursuing for now
