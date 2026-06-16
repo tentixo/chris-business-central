@@ -65,8 +65,26 @@ This is the answer to *"can you now understand what we're doing in jobs?"*:
 
 ---
 
-## 5. Open items / next steps
+## 5. Deferred tax — a consolidation-only adjustment *(Morre, June 16)*
 
+Deferred tax (*uppskjuten skatt*) barely appears in single-entity Swedish books but shows up the moment you consolidate. Two sources:
+
+1. **Untaxed reserves split.** In standalone Swedish accounts, *obeskattade reserver* (periodiseringsfonder, ackumulerade överavskrivningar) sit as a single untaxed amount. In the **consolidated** accounts this is not allowed — each reserve must be split into **equity (~79.4%)** and a **deferred tax liability (~20.6%**, the SE corporate rate). The annual movement of the tax portion hits the P&L deferred-tax line.
+2. **Temporary differences from consolidation entries** — eliminating internal profit (inventory/assets) or fair-value/PPA adjustments on acquisition create deferred tax assets/liabilities, again with a P&L effect.
+
+**CoA gap (verified against `docs/PackageCOA.xml`):** the **balance-sheet** side exists —
+- `1370` Deferred tax asset
+- `2240` Provisions for deferred taxes (liability)
+
+— but the **P&L counterpart is missing**: `89xx` has `8910/8920/8930/8980` and **no `8940`**. So there's nowhere to post the deferred-tax *expense/income* that consolidation generates.
+
+➡️ **Action: add `8940 Uppskjuten skatt` (Deferred tax)** to the CoA, per BAS 2022 ([Kontoplan 2022](https://www.bas.se/wp-content/uploads/2022/01/Kontoplan-2022.pdf)). Balance-sheet accounts (`1370`/`2240`) are already in place.
+
+---
+
+## 6. Open items / next steps
+
+- [ ] **Add `8940 Deferred tax`** to the CoA (P&L side missing; `1370`/`2240` already present).
 - [ ] **Confirm the narrative with Morre** — especially the consolidation-of-intercompany-jobs framing.
 - [ ] Optional: a worked **elimination example** (e.g. Lasernet SE invoices Lasernet DK) showing the double-count and the elimination journal.
 - [ ] Decide whether Tentixo needs a **consolidated company** set up now, or this is reference for client engagements (e.g. Formpipe SE/DK).

@@ -42,6 +42,7 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 2. **§4 archetype→method mapping** for the 3 new methods — pending Morre sign-off ("check the logic").
 3. **Default WIP method** in Projects Setup — not yet decided.
 4. **Validate consolidation note** narrative; optionally add a worked elimination example (Lasernet SE↔DK).
+5. **🆕 Add `8940 Deferred tax` to the CoA** (Morre) — consolidation needs the P&L deferred-tax account; balance-sheet side (`1370`/`2240`) already exists. See `consolidation-research.md` §5.
 
 ## Next Task
 
