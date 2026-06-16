@@ -155,7 +155,7 @@ WIP is one face of the accrual question: **which period does a cost/revenue belo
 | §4 archetype → method mapping for the 3 new methods | ⏳ **Pending Morre sign-off** ("check the logic") |
 | Default WIP method in Projects Setup | ⏳ Not yet decided |
 | **NEW — Consolidation research** (Morre assigned) | ⏳ Explain BC consolidation basics + why the group-based CoA/job posting enables automatic consolidation. Separate research note. |
-| Build the hands-on **WIP testing playbook** | ⏳ Next deliverable (`ai/guides/`) |
+| Build the hands-on **WIP testing playbook** | ✅ Done → `ai/guides/wip-testing-playbook.md` |
 
 ---
 

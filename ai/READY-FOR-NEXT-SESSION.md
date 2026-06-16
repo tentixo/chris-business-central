@@ -34,6 +34,8 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 - **J-EXT confirmed** as external-client default; no domestic job group (group separation needed for consolidation).
 - **NEW consolidation research** drafted → `ai/reports/consolidation-research.md`. Proven from CoA: 1712/1713 accounts have Consol Debit/Credit set; 112 intercompany accounts remap to parent (e.g. AR 1565/1566→1564). This is *why* the CoA/posting groups are group-structured.
 
+- **WIP testing playbook built** → `ai/guides/wip-testing-playbook.md` — hands-on sandbox exercise (set method at start → post cost/sales across periods → Calculate WIP → Post WIP to G/L → inspect real J-EXT accounts → reverse → compare methods on separate projects).
+
 ## Still open with Morre (WIP)
 
 1. **🐛 J-GRP-OTHR wiring bug** — G/L Expense (Contract) = `3426` (a sales-applied acct); should be `3436`. **Not confirmed in Call 6 — raise again.**
