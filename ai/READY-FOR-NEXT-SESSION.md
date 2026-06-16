@@ -1,8 +1,8 @@
 # Ready for Next Session
 
-**Last Updated**: 2026-06-15
+**Last Updated**: 2026-06-16
 **Risk Level**: LOW
-**Git Status**: Clean — all session work committed (15 commits). See `ai/reports/session-summary_2026-06-15.md`.
+**Git Status**: Clean — WIP codebook v2.0 + consolidation research committed.
 
 ---
 
@@ -28,12 +28,18 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 - **"Full Tentixo" decision** — all docs now use the **real Tentixo posting codes** (verified from `docs/PackageVAT1.xml` + `docs/PackageCOA.xml`), not MS-default placeholders. Replaced `CONSULTING1→C-MAIN1`, `SERVICE FULL/VAT25→S-FULL`, `GOODS FULL→G-FULL`, `ELECTRONIC SERVICE→S-ESVC`, `ZERO→S-ZERO/G-ZERO` across both playbooks, both billing guides, and Tinky scenarios. See memories [[feedback-full-tentixo-best-practice]] + [[reference-tentixo-real-posting-codes]].
 - **Sandbox audit = both halves clean** ✅: VAT Prod groups already semantic (no rename needed — `VAT25` only lives as the VAT Identifier); Gen. Bus. groups intercompany (no DOMESTIC/EXPORT anti-pattern).
 
-## Raise with Morre next session (WIP)
+## Session 2026-06-16 (Morre Call 6 — WIP review)
 
-1. **Confirm J-EXT** as the default Job Posting Group for external client projects — there is **no generic/domestic** job posting group; all 7 are group/intercompany variants (EXT, GRP-*, CTRL-*).
-2. **🐛 Fix J-GRP-OTHR wiring bug**: its *G/L Expense (Contract)* account is **3426** (a sales-applied account) but should be **3436** ("G/L Expenses Projects, GRP-OTHR") to match every other group's pattern.
-3. **Validate the codebook** (`ai/reports/wip-methods.md`) — the archetype→method recommendations in §4 are my reasoning, not yet Morre's rulings.
-4. **Decide the default WIP method** in Projects Setup, and which methods to offer as the standard menu.
+- **WIP codebook → v2.0**: extended to **all 8 Tentixo methods** (5 MS + 3 custom: INVOICED C-P, INVOICED C-TOTAL P, TOTAL C-P), decoded from `docs/PackageWIP_METHODS.xml` (table 1006). Added operational rules (set method at start; run final WIP before close; never change mid-flight; completion≠closing) + item-based cost capture (Items > direct G/L; FIFO; purchase items like hotel).
+- **J-EXT confirmed** as external-client default; no domestic job group (group separation needed for consolidation).
+- **NEW consolidation research** drafted → `ai/reports/consolidation-research.md`. Proven from CoA: 1712/1713 accounts have Consol Debit/Credit set; 112 intercompany accounts remap to parent (e.g. AR 1565/1566→1564). This is *why* the CoA/posting groups are group-structured.
+
+## Still open with Morre (WIP)
+
+1. **🐛 J-GRP-OTHR wiring bug** — G/L Expense (Contract) = `3426` (a sales-applied acct); should be `3436`. **Not confirmed in Call 6 — raise again.**
+2. **§4 archetype→method mapping** for the 3 new methods — pending Morre sign-off ("check the logic").
+3. **Default WIP method** in Projects Setup — not yet decided.
+4. **Validate consolidation note** narrative; optionally add a worked elimination example (Lasernet SE↔DK).
 
 ## Next Task
 
