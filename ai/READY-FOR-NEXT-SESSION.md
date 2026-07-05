@@ -44,6 +44,10 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 4. **Validate consolidation note** narrative; optionally add a worked elimination example (Lasernet SE↔DK).
 5. **🆕 Add `8940 Deferred tax` to the CoA** (Morre) — consolidation needs the P&L deferred-tax account; balance-sheet side (`1370`/`2240`) already exists. See `consolidation-research.md` §5.
 
+## Tracked knowledge channel — IFRS engagement (Lasernet UK)
+
+3rd live engagement (Tentixo `ifrs-16-research` branch; Carla Rogers + Camilla + Morre): IFRS-16 / FRS-102 finance-lease accounting in BC. **Track knowledge only — do NOT act on these tasks.** Docs in `ai/reports/`: `ifrs16-lease-setup-guide-bc`, `ifrs-16-uk-frs102-bc-implementation`, `ifrs-16-leased-assets-research`, `ic-postings-issues-meeting`. Folded into MB-800 plan (`mb800-gap-analysis.md` v1.1): **Fixed Assets 🔴→🟡** (FA classes, depr. books, FA posting groups, Calculate Depreciation, FA G/L journals — seen live via Morre). Converts to 🟢 when Chris runs the sandbox dry-run himself (engagement action A5); **disposal** still untouched. See [[project-ifrs-engagement-channel]].
+
 ## Next Task
 
 1. **Build the WIP testing playbook** — hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics. Lands in `ai/guides/`.
