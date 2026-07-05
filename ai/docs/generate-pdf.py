@@ -52,6 +52,23 @@ CONFIGS = {
         ],
         "footer_text": "TENTIXO AB — INTERNAL",
     },
+    "morre": {
+        "md": ROOT / "ai/reports/bc-progress-summary-for-morre_v1.0.md",
+        "diagrams": ROOT / "ai/docs/diagrams",
+        "diagram_prefix": "diagram",
+        "out": ROOT / "ai/docs/bc-progress-summary-for-morre.pdf",
+        "cover_bg": "#1E3A45",
+        "cover_strip": "#00838F",
+        "cover_title": "Business Central<br>Progress Update",
+        "cover_subtitle": "Gap analysis and next steps<br>— prepared for Morre",
+        "meta": [
+            ("Version", "1.0"),
+            ("Date", "July 2026"),
+            ("Classification", "Internal"),
+            ("Author", "Chris Mansson / Tentixo AB"),
+        ],
+        "footer_text": "TENTIXO AB — INTERNAL",
+    },
 }
 
 
