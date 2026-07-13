@@ -1,8 +1,9 @@
 # Fixed Assets — Hands-On Testing Playbook
 
-**Version**: 1.2
+**Version**: 1.3
 **Created**: 2026-07-05
 **Updated**: 2026-07-06 — rebuilt on the **standard-Microsoft spine + Tentixo-practice callouts** pattern; all 3 acquisition routes; dimensions woven in; LVA + Inactive/Blocked from Masha §8. Accounts verified against `docs/Chart of Accounts (1).xlsx`.
+**Updated**: 2026-07-13 (v1.3) — refined the §1e dimensions callout with Morre's Call-16 nuance (8 tag fields / calcification, not a flat "never use"; Cost Accounting as the allocation alternative).
 **Type**: Sandbox exercise sheet (do-it-yourself). Companions: `ai/reports/masha-bc-sessions.md` §8 (Tentixo practice), `ai/reports/lease-accounting-setup.md` (Exercise 2).
 **Goal**: go from "seen it" → "done it" on **Fixed Assets** — the fastest 🟡→🟢 in the MB-800 plan, and the on-ramp to the Lasernet lease work.
 
@@ -100,7 +101,7 @@ BC uses **dimensions** to tag postings for cost-centre/segment reporting. Set on
 1. `Alt+Q` → "Dimensions". If a usable one exists (e.g. **DEPARTMENT**), use it; if not, **+ New** `CTEST-DEPT` with two **Dimension Values** (e.g. `ADM`, `SALES`) — *creating a dimension + values is itself an exam skill (D1)*.
 2. `Alt+Q` → "General Ledger Setup" → **Dimensions** — set your dimension as a **Shortcut Dimension** (so it shows as a column on journals). *(Global vs shortcut is exam material — note the difference.)*
 
-> 🏢 **TENTIXO PRACTICE:** Morre's convention is **"never use dimensions"** — Tentixo segments via CoA/account structure instead. So the Test env may have few set up. That's fine: for the exam and for most *other* clients, dimensions are the standard tool — learn them here regardless. Morre's stance is one informed option, not the default.
+> 🏢 **TENTIXO PRACTICE:** Morre *minimises* dimensions — Tentixo segments via CoA/account structure instead — so the Test env may have few set up. But his refined position (Call 16) is **not** "never": a dimension is just **one of 8 tag fields**, trivial to use, and worth learning the standard way for the exam. The real objection is **calcification** — a dimension on a posting is *permanent*, so using one to carry a revisable decision (e.g. a 60/40 cost split) bakes that decision onto the raw posting and forces a reverse-and-re-post to change it. Learn dimensions here regardless; apply the "minimise" judgment for clients. *(See playbook §3.13; the separate-ledger alternative for cost allocation is Cost Accounting.)*
 
 ---
 
