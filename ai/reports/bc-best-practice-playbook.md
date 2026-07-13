@@ -1,9 +1,9 @@
 # Business Central — Best Practice Playbook
 
-**Version**: 0.3 — Draft
+**Version**: 0.4 — Draft
 **Status**: In progress
 **Created**: 2026-06-04
-**Updated**: 2026-06-12
+**Updated**: 2026-07-13
 **Author**: Tentixo AB
 **Scope**: Recommended patterns for Business Central setup, posting architecture, and project management
 
@@ -97,6 +97,21 @@ Violating this rule makes it impossible to get accurate totals without manual ch
 Within the Virtual category, VAT law distinguishes between **electronic services** (self-serve download, no human involvement) and regular services. This distinction affects cross-border VAT treatment, particularly within the EU.
 
 The correct way to handle this is through the **VAT Product Posting Group**, not by creating separate items. One license item can be sold domestically and internationally — BC applies the correct VAT rate automatically through the posting group matrix.
+
+### 3.5 Turn off Direct Posting on ledger-linked accounts
+
+Accounts that are backed by a sub-ledger — accounts receivable, accounts payable, VAT, bank — should have **Direct Posting switched off**. This forces them to move only *through documents* (invoices, credit memos, payments), never by a manual G/L journal line. The payoff is integrity: a "fat-finger" manual edit to an AR control account silently desyncs it from the customer ledger, and those breaks are painful to find. Leave direct posting *on* only for genuine manual-entry accounts (accruals, corrections). More broadly: understand every setting on a G/L account well enough to know *why* it's set the way it is.
+
+### 3.6 Account categories — the reporting layer, kept separate from the CoA
+
+A granular chart of accounts (often 1,000+ accounts) is correct for bookkeeping but unreadable for management. BC's built-in **Account Categories → Subcategories** (two levels) solve this: each G/L account links to a category, and BC re-aggregates the child accounts **nightly** into a management-shaped income statement, balance sheet, and cash flow.
+
+Two principles matter:
+
+- **This is an analysis layer, not a correctness layer.** You do not need account categories to file VAT or produce a statutory income statement — they exist purely to *aggregate for reporting*. Keep the two intents separate.
+- **It is configured per company and by hand** — categories cannot be pushed through a configuration package, and each entity may want a different aggregation. Use *"view uncategorised accounts"* to confirm nothing was missed.
+
+Reports themselves show only the aggregated totals; to drill from a category down into the underlying accounts, surface the data in **Power BI**, which becomes the single analytical view over the ledger.
 
 ---
 
@@ -451,6 +466,7 @@ These are the patterns we most frequently encounter in BC implementations that h
 |-------------|---------|-----------|-----|
 | **Item duplication** | "Heat Map - SE", "Heat Map - NO", "Heat Map - EU" | Posting groups not configured — geography baked into items | Set up WHO × WHAT matrix; one item handles all geographies |
 | **Dimension overload** | 15+ dimensions, reports take minutes | Granularity put on dimensions instead of proper registers (Resources, Projects, Posting Groups) | Move granularity to the correct BC register; reserve dimensions for true cross-cutting analytics |
+| **Decisions baked onto postings via dimensions** | A cost split (e.g. 60/40 across departments) can't be revised without reversing and re-posting | Dimensions are permanent once posted — a *crafted* allocation decision was hard-coded onto the raw posting | Keep revisable allocations out of the posting. Use **Cost Accounting** (a separate ledger) for re-allocation, so analysts change 60/40 → 50/50 without disturbing the original entry |
 | **Inventory type for services** | Negative inventory warnings, cost valuation noise | Item created as "Inventory" instead of "Service" | Change item type to Service; remove Inventory Posting Group |
 | **Hardcoded prices** | Price changes require editing every item | Prices on item cards instead of Price Lists | Set item price to 0, create customer/project-specific Price Lists |
 | **Parent + child account posting** | Totals don't add up, manual reconciliation needed | Postings to both a summary account and its children | Pick one level — either the parent or the children, never both |
@@ -475,6 +491,12 @@ BC is a **transaction-based** system, not a database. This distinction matters f
 - **The ledger is the truth.** If a report disagrees with the ledger, the report is wrong — not the ledger.
 
 Systems that allow in-place edits (changing a field value, moving hours between projects) create audit gaps. BC's transaction model prevents this by design.
+
+### 10.1 Keep raw bookkeeping separate from crafted analysis
+
+A useful lens for any BC design decision: distinguish **raw data** — how a transaction is *legally* recorded (a booked invoice, a monthly depreciation, a stock valuation) — from **crafted data** — anything a person *decides* (how accounts are aggregated, how costs are allocated, normalisation and reporting rules).
+
+The design rule that follows: **crafted decisions must never create a dependency on the people recording the raw data.** The team booking transactions should be able to punch them in quickly and correctly; the choices that get revised often — allocations, groupings, report structures — belong in layers that sit *above* the raw postings (account categories, cost accounting, Power BI), where they can change without asking the bookkeeping team to reverse and re-post. When an analytical decision forces a re-booking, the layering is wrong.
 
 ---
 

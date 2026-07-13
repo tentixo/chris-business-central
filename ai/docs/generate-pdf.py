@@ -2,9 +2,16 @@
 """Generate branded Tentixo PDFs from markdown playbooks.
 
 Usage:
-    python3 ai/docs/generate-pdf.py client     # client-facing best practice playbook
+    python3 ai/docs/generate-pdf.py client      # client-facing best practice playbook
     python3 ai/docs/generate-pdf.py internal    # internal Tentixo playbook
-    python3 ai/docs/generate-pdf.py all         # both
+    python3 ai/docs/generate-pdf.py morre        # progress summary for Morre
+    python3 ai/docs/generate-pdf.py schedule     # MB-800 study schedule
+    python3 ai/docs/generate-pdf.py all         # client + internal
+
+Dependencies: see ai/docs/requirements.txt (markdown + weasyprint).
+weasyprint needs native libs, so the working interpreter here is Homebrew's
+python3.14 (which vendors pango/cairo). Run with:
+    /usr/local/bin/python3.14 ai/docs/generate-pdf.py schedule
 """
 
 import re
@@ -64,6 +71,23 @@ CONFIGS = {
         "meta": [
             ("Version", "1.0"),
             ("Date", "July 2026"),
+            ("Classification", "Internal"),
+            ("Author", "Chris Mansson / Tentixo AB"),
+        ],
+        "footer_text": "TENTIXO AB — INTERNAL",
+    },
+    "schedule": {
+        "md": ROOT / "ai/reports/mb800-study-schedule_v1.1.md",
+        "diagrams": ROOT / "ai/docs/diagrams",
+        "diagram_prefix": "diagram",
+        "out": ROOT / "ai/docs/mb800-study-schedule.pdf",
+        "cover_bg": "#1E3A45",
+        "cover_strip": "#00838F",
+        "cover_title": "MB-800<br>Study Schedule",
+        "cover_subtitle": "Progress tracker to the exam<br>— week of 9 Nov 2026",
+        "meta": [
+            ("Version", "1.1"),
+            ("Updated", "July 2026"),
             ("Classification", "Internal"),
             ("Author", "Chris Mansson / Tentixo AB"),
         ],

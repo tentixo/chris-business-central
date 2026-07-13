@@ -38,6 +38,8 @@ When I'm getting help on BC tasks, default to these patterns — they match how 
 - **Service-type Items, not Inventory.** Inventory type triggers stock tracking, negative inventory traps, valuation noise — wrong for consulting.
 - **Transaction-based, not database-based.** BC's strength vs systems like TimeLog: posted entries stay in the ledger. Reversals create audit trail. Avoid any pattern that suggests "just edit the value."
 - **"Correctness based on intent", not "best practice".** Morre avoids the term "best practice" — many so-called best practices are wrong (e.g., the DOMESTIC/EXPORT Gen. Bus. Posting Group split). Instead, evaluate setups by asking: does this reflect the *intent* of the transaction? Does it propagate correctly to legal, management, and reporting? The MVA principle applies: you cannot remove complexity, only move it. If the BC pattern generates work in another department, it hasn't followed MVA.
+- **Learn by tracing the posting, not layer-by-layer ("glue a map").** *(Morre, Call 16)* For any new area — fixed assets, inventory, purchasing, payments — open its posting groups + posting setup, post *one* transaction, then look at **where it landed in the VAT ledger and the General Ledger**. Repeat until the map is complete. There are only **two ways to post: a journal or a document** — everything else is a special case of those two, so once the spine (CoA + posting groups + posting setup + journals-vs-documents) is solid, every module becomes legible.
+- **Rim data vs. Crafted data — never let crafting depend on the Rim people.** *(Morre, Call 16)* **Rim data** is how you *legally* punch things in (booking a receipt/invoice, monthly FA depreciation, warehouse valuation). **Crafted data** is anything a human *decides* — account categories, aggregation/normalisation rules, posting-setup settings, analysis. The golden rule (the red "No!" arrow in `docs/FGGE-Machinery_v4.png`): a crafted decision must **never** create a dependency on the Rim-data people. Things you change often must not be baked onto Rim postings — this is the core reason to be sparing with dimensions (see §3.13).
 
 ---
 
@@ -76,6 +78,16 @@ graph TD
 **Number Series** are a prerequisite for every layer that creates records (CoA, Master Data, Projects, Transactions) — but *not* for Posting Groups (they are configuration, not records). If a number series isn't set up (e.g., Subscription Billing numbers missing from the sandbox), that entire module is blocked. Number Series sits alongside the hierarchy, not above it in a linear stack.
 
 **Posting Groups → CoA**: The arrow from Layer 2 back to Layer 1 is intentional. Posting groups don't just depend on the CoA — they *control* which CoA accounts transactions land on. The General Posting Setup matrix maps (Business Group × Product Group) → G/L Account.
+
+**The foundation spine (Morre, Call 16)** — the exam topics (fixed assets, dimensions, journals, purchasing, inventory) are not separate subjects; they're the *same machinery* applied in different places. Master the spine and the rest follows:
+
+1. **Number Series** (technical layer) — manual vs automatic numbers. Bank accounts, employees and resources are *named, not numbered* (manual); a resource and its employee can share the same ID. The **employee register** is for anyone owed a *post-tax* payment — including a sub-consultant reimbursed for a client dinner (it's **debt on the balance sheet**), so separate posting groups keep *staff* debt distinct from *sub-consultant* debt.
+2. **Chart of Accounts settings** — have a *sense* of every setting. The load-bearing one is **Direct Posting**: turn it **off** on ledger-linked accounts (AP/AR/VAT) so they can only move *through documents* (invoices/credit memos), blocking "fat-finger" manual edits that desync the sub-ledgers.
+3. **Posting Groups + Posting Setup** — pointers to *where* to post; General + VAT Posting Setup are the combination matrices.
+4. **Journals vs Documents** — the only two ways to post (auto-revaluations are just automatic journals).
+5. **VAT statement & settlement** — see §6.1.
+
+> Diagram: `docs/FGGE-Machinery_v4.png` (Morre's "Financial Governance & Compliance", v4) — governance levels (ORG → Group → External), the **Aggregation Machinery** (entity APIs → Aggregation → Normalize → Consolidation → View & Dig → Analyze & Report), and **The Loop** (Rim + Crafted → Combine → Analyze & Decide, with the red "No!" barring crafted data from writing back into Rim).
 
 **Five "people" registers in BC** — the same person can appear in multiple registers, each serving a different purpose:
 
@@ -409,6 +421,18 @@ Keep recurring/subscription billing **outside** the project. Reasons (confirmed 
 3. Multi-customer projects exist in BC (Gen. Bus. Posting Group set per line); subscriptions are always single-customer. Mixing risks confusion.
 4. MVA: you cannot remove complexity, only move it. Merging creates downstream work in legal/operations.
 
+### 3.13 Dimensions vs Cost Accounting (Morre, Call 16)
+
+Morre's "never use dimensions" line, unpacked — and the friction with the MB-800 (which has a whole dimensions sub-area) resolved.
+
+**Dimensions are not a module — they're 8 tag fields on a transaction.** Usage is trivial: define dimension *types* (categories), give them *values* (enums), then tag documents/transactions and filter/calculate by tag. **Learn the vanilla mechanics for the exam** (global vs shortcut, defaults, blocking combinations, priorities, dimension correction) — that part is simple.
+
+**Why Morre minimises them — calcification.** A dimension put on a posting is **forever**. The moment you use dimensions to carry a *crafted decision* — e.g. splitting an invoice 60/40 across two departments — that decision is baked onto the Rim posting. To change it to 50/50 you must send the Rim people to reverse and re-post (the employee-moves-department problem: revert 200 postings, or do a manual correction). That is exactly the Rim-vs-Crafted dependency the golden rule forbids (§2). Dimensions are the "nuclear option": fine as tags, dangerous as a home for decisions you'll revise.
+
+**Cost Accounting — the architectural alternative.** A **totally separate ledger** ("think of it as a separate chart of accounts"). Cost accountants re-allocate freely (60/40 → 50/50) in *their* ledger without ever touching the original Rim posting. Dimensions and cost accounting "stand against each other" — you use one or the other for cost allocation. Cost accounting can lean on dimensions but isn't strictly dependent on them.
+
+> **Not in the MB-800 basic exam** — but Morre wants it added *"because we most likely will use it for Formpipe."* Study it for capability, not the cert. Setup is empty in the sandbox today (Morre hasn't built it yet — AI-assist candidate).
+
 ---
 
 ## 4. Operational playbook — the 8-step flow
@@ -644,6 +668,19 @@ For physical goods, the revenue event depends on **Incoterms** (international tr
 
 The point: there must be zero ambiguity about *when* the sale happened. Bookkeeping follows the risk transfer, not the payment.
 
+### 5.9 Year-end close — moving the result to the balance sheet
+
+*(Morre, Call 16)* The income statement is closed every year and must net to zero. Summarise revenue and cost → you get the year's result. That result has to be **moved to the balance sheet**: a profit is booked as "a cost called profit" so the P&L zeroes out and equity grows ("we grew our money in the company"). A loss works the mirror way. This is a distinct *operation* (year-end close), not day-to-day posting — one of the D4 exam topics.
+
+### 5.10 Account categories & financial reporting — the aggregation layer
+
+*(Morre, Call 16)* The 1,400-account CoA is too granular for management to read (Formpipe don't want to look at 1,400 accounts). BC's built-in aggregation solves this:
+
+- **Account Categories → Subcategories** (two levels). Each G/L account links to a category; BC sums the granular child accounts into categories **every night**, so you get a daily income statement / cash flow in the shape the company wants.
+- **Set up manually per company** — this is *crafted data* (§2), and it **cannot** be pushed via a config package. Two entry points: edit on the category, or on the G/L account (they mirror). Use **"view uncategorised accounts"** as a completeness check — any 4-digit account still showing means one was missed.
+- **Different intent from bookkeeping.** You don't need account categories to get the numbers out for VAT or an income statement — they're for *analysis*, not correctness. Keep the two separate.
+- **Drill-down needs Power BI.** Reports show totals only; to click a category down to its granular child accounts you need Power BI (the VAT statement preview has partial drill-down). This is *why* Formpipe/Therese's "single source of truth" ask lands in Power BI (§12).
+
 ---
 
 ## 6. Operational patterns (from Masha sessions)
@@ -664,6 +701,11 @@ The point: there must be zero ambiguity about *when* the sale happened. Bookkeep
 **Split-VAT transactions**: When one bank line contains items at different rates (e.g., Uber ride + tip), post as multiple journal lines under the **same document number**. Each line gets its own posting groups. Bank balancing line has no posting groups. Total must be zero.
 
 **Business dinners**: Max 300 SEK/person deductible. Alcohol is always non-deductible. Only the food portion (up to the limit) gets 12% VAT.
+
+**VAT statement & settlement (the process)** *(Morre, Call 16)* — two distinct steps, and an MB-800 topic:
+- **VAT statement** validates the *report* — it reads the VAT entries and lets you check the numbers before you commit.
+- **Settlement** actually *moves* the money between accounts. Ongoing VAT sits on separate accounts — SE **output 2610** / **input 2640** — and on settlement the net is swept to **2650** (what you owe the Swedish tax office). EU items settle to **2690**. You need to know *when* VAT posts to the VAT ledger and when it doesn't.
+- **MOSS quirk.** A non-VAT-registered buyer is treated as an *individual*; cross-border B2C VAT (e.g. a French sale) is owed to *that* country. It's parked in a **single clump-sum account** for all non-SE countries (no room for one account per country) — the per-country granularity lives in the VAT ledger. There's **no MOSS VAT report yet** (Morre is behind on that one).
 
 ### 6.2 Fixed assets — Swedish thresholds
 
@@ -928,7 +970,8 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 - Graph API / Business Central API patterns for automation (Python tooling Morre and I are building). Morre notes Python scripts via API as a 4th option for complex invoice generation.
 - **Sales Price Lists in detail** — customer-specific, project-specific, resource-specific, project+resource+work type overrides. Morre confirmed granularity is deep — need to explore.
 - Time Sheet feature — when to enable on Resource cards, approval flow setup
-- **Dimensions strategy** — Morre's position: "you should never use dimensions." Skipped over in session — need to unpack this. Current understanding: posting groups and proper registers (Resources, Projects) handle what people typically misuse dimensions for.
+- ~~**Dimensions strategy**~~ **RESOLVED (Call 16, 2026-07-10)** — see §3.13. Dimensions are *8 tag fields*, not a module; simple to use (learn vanilla for the exam), but *calcifying* (why Morre minimises them). The alternative for cost allocation is **Cost Accounting** (a separate ledger). No exam-vs-Morre conflict: learn the mechanics for MB-800, apply the judgment for clients.
+- **Cost Accounting** — NEW to-do (Morre, Call 16): a separate-ledger alternative to dimensions. *Not* an MB-800 topic, but Morre expects to use it for **Formpipe**; sandbox is currently empty. Set it up / explore. See §3.13.
 - Revenue recognition timing for physical goods — Incoterms + BC's handling of shipped-not-invoiced *(Morre flagged he needs to research this further)*
 - Prepaid vs. post-pay account handling in carve-out scenarios — the 2171/1470 distinction and how to keep automated code safe
 - ~~**VAT Prod. Posting Group correction**~~ **RESOLVED (2026-06-15)** — config export shows Tentixo already uses semantic codes (`S-FULL`, `G-FULL`, `S-ESVC`, `S-ZERO`/`G-ZERO` + relative steps). No rename needed. `VAT25` lives only as the VAT Identifier (acceptable).
@@ -938,7 +981,7 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 - **Subscription Package vs Subscription Agreement** — Morre couldn't fully explain the distinction either. Hands-on setup used Contract directly (no Package). Contract Type dropdown has options (Harmonized, Billing, Customer, Subscription, Contracts) — meaning unclear, left blank. Needs exploration.
 - **Bank reconciliation walkthrough with Masha** — postponed from June 11 session (closed period blocked the demo). Masha will show when caught up on April receipts, likely next week.
 - **BC native PDF-to-invoice scanning** — Masha and Morre both mentioned this. Morre's next project to set up.
-- **MB-800 certification gaps** — After June 30 (exam content update), map updated study guide against this playbook. Known gaps: data migration packages, security roles/permissions, purchase side, year-end close, financial reporting. Target Q4 2026. See FLIGHT-PLAN.md milestone M1.
+- **MB-800 certification gaps** — Gap analysis done (`ai/reports/mb800-gap-analysis.md`) and a sprint schedule built (`ai/reports/mb800-study-schedule_v1.1.md`, exam week of 9 Nov 2026). Year-end close and financial reporting now captured (§5.9–5.10); remaining study gaps tracked in the schedule. See FLIGHT-PLAN.md milestone M1.
 
 ---
 
@@ -959,3 +1002,4 @@ Setup sequence: Subscription Contract Setup (number series + arrange texts) → 
 | 1.1     | 2026-06-05 | Added §6 operational patterns from Masha session (VAT rates, fixed assets, payment reconciliation, exchange rates). New gotchas. |
 | 1.2     | 2026-06-11 | Added §6.6 deferrals from Masha session (6 deferral codes, threshold rule, quarter-close pragmatism, T&M revenue deferral). Bank recon postponed. |
 | 1.3     | 2026-06-12 | Subscription Billing setup completed for Tiny Minds Lab AB. Full setup details, learnings, and gotchas added to §11. Step-by-step guide created at `ai/guides/subscription-billing-setup.md`. |
+| 1.4     | 2026-07-13 | Folded in Morre Call 16 (dependency-graph teaching): §2 Rim-vs-Crafted + trace-the-posting method; §3.1 foundation spine + Direct Posting + FGGE diagram; §3.13 Dimensions vs Cost Accounting; §5.9 year-end close; §5.10 account categories & financial reporting; §6.1 VAT statement & settlement + MOSS. Dimensions open-question resolved; Cost Accounting added as a Formpipe to-do. |

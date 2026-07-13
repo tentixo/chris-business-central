@@ -1,0 +1,15 @@
+# Dependencies for ai/docs/generate-pdf.py (branded Tentixo PDF generation).
+#
+# Install into a Python 3.11+ environment:
+#     python3 -m pip install -r ai/docs/requirements.txt
+#
+# NOTE: weasyprint needs native libs (pango, cairo, gdk-pixbuf). On macOS the
+# simplest route is Homebrew's weasyprint formula, which vendors them:
+#     brew install weasyprint            # provides /usr/local/bin/python3.14 with weasyprint
+#     /usr/local/bin/python3.14 -m pip install markdown
+# then run:  /usr/local/bin/python3.14 ai/docs/generate-pdf.py schedule
+#
+# Versions below are what the current PDFs were built with.
+
+markdown==3.10.2
+weasyprint==69.0

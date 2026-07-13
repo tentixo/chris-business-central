@@ -1,9 +1,10 @@
 # MB-800 — Gap Analysis vs. Captured Knowledge
 
-**Version**: 1.2
+**Version**: 1.3
 **Created**: 2026-06-15
 **Updated**: 2026-06-23 (v1.1) — folded in the IFRS engagement (Lasernet UK); Fixed Assets 🔴→🟡
 **Updated**: 2026-07-05 (v1.2) — folded in new IC-item-method + IAS 38 docs; **Dimensions 🔴→🟡**; item-types + posting-setup reinforced
+**Updated**: 2026-07-13 (v1.3) — folded in Morre Call 16 (dependency-graph teaching): dimensions reframed + exam-vs-Morre friction resolved; foundation-spine study approach; account categories / year-end close now captured in playbook; **Cost Accounting** flagged as non-exam / Formpipe-driven
 **Milestone**: FLIGHT-PLAN M1 — MB-800 Functional Consultant Associate, target Q4 2026
 **Exam**: ~60 questions, 100 min, pass 700/1000, ~$165
 **Source**: [MB-800 study guide (skills as of June 30, 2026)](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/mb-800)
@@ -24,6 +25,9 @@ Each exam sub-area is rated against what we've captured so far (playbook, billin
 
 1. **Projects / Jobs / WIP is NOT a dedicated MB-800 domain.** Our deep WIP work is **client-driven (Tinky/Formpipe), not exam-driven**. Don't over-index WIP for the cert.
 2. **Dimensions is a whole exam sub-area — Morre says "never use," but the IC engagement now uses them.** Nuance update: the IFRS/IC work *does* use dimensions (default dimensions on items, Country/Function/Product/Revenue dimensions carried on IC lines, dimension correction on receipt) — so it's **no longer purely exam-only**. You now have hands-on exposure to **defaults + how dimensions flow with document lines + correction**; the *exam-specific* mechanics still to study are **global vs shortcut, blocking combinations, and priorities**.
+   - **Exam-vs-Morre friction RESOLVED (Call 16, 2026-07-10):** Morre — *"dimension is not the module; it's 8 fields where you put tags on transactions."* The **usage is trivial** (learn the vanilla mechanics for MB-800); his objection is to what they do to *data* — a dimension on a posting is **permanent**, so using them to carry a revisable *crafted* decision (a 60/40 cost split) hard-codes that decision onto the raw posting and forces the bookkeeping team to reverse/re-post to change it. So: **learn dimensions the standard way for the exam, apply the "minimise" judgment for clients** — no real conflict. See playbook §3.13.
+3. **The exam topics are one machine — study the spine, not the topics (Call 16).** Fixed assets, dimensions, journals, purchasing, inventory are all applications of: number series → CoA settings (esp. **Direct Posting**) → posting groups/setup → **journals-vs-documents** → VAT settlement. Study method: for each area, post one transaction and trace where it lands in the **VAT ledger + G/L** ("glue a map"). This is now the standing approach in the study schedule.
+4. **Cost Accounting is NOT an MB-800 topic** — Morre confirmed it's outside the basic exam, but wants it added *because we'll likely use it for Formpipe* (the separate-ledger alternative to dimensions for cost allocation). Tracked as a Formpipe to-do, **not** a cert study item. See playbook §3.13.
 
 ## Knowledge channel — IFRS engagement (Lasernet UK, `ifrs-16-research` branch)
 
@@ -51,7 +55,7 @@ A **third live engagement** now feeds the plan: Chris is working on Tentixo's IF
 | Sub-area | Status | Notes |
 |---|---|---|
 | Financial mgmt setup (GL setup, accounting periods, payment terms, **deferrals**, currencies, payment methods) | 🟡 | Payment terms + deferrals touched in billing; periods/currencies/payment methods = gaps |
-| Manage CoA (GL accounts, account categories/subcategories, financial reporting, GL allocations) | 🟡 | Deep CoA exposure now (1,713-account export); categories/financial-reporting/allocations = study |
+| Manage CoA (GL accounts, account categories/subcategories, financial reporting, GL allocations) | 🟡 | Deep CoA exposure now (1,713-account export); **account categories + financial reporting now captured conceptually** (playbook §5.10, Call 16 — nightly aggregation, per-company, crafted-not-Rim, Power BI drill-down) — hands-on setup + GL allocations still = study |
 | **Set up posting groups** (specific, general, general posting setup, inventory posting setup, multiple posting groups) | 🟢 | Core competency — playbook §3–4, GVH+W, semantic VAT groups |
 | Journals & bank accounts (templates+number series, batches, recurring journals) | 🟡 | Project/journal batches covered; bank accounts/recurring = gaps |
 | Accounts payable (vendor accounts, P&P setup, payment journals, vendor ledger relationships) | 🔴 | Purchasing/vendor side weak |
