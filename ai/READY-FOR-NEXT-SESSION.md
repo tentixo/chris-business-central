@@ -1,12 +1,24 @@
 # Ready for Next Session
 
-**Last Updated**: 2026-06-16
+**Last Updated**: 2026-07-14
 **Risk Level**: LOW
-**Git Status**: Clean — WIP codebook v2.0 + consolidation research committed.
+**Git Status**: Clean — all committed & pushed to `origin/main` (`cd23fae`).
 
 ---
 
-## Where We Left Off
+## ▶ CURRENT — Session 2026-07-13/14 (MB-800 sprint execution)
+
+**Where we left off:** Executed the MB-800 study plan hands-on. Folded **Morre Call 16** (dependency graph: foundation spine, Rim-vs-Crafted, dimensions-as-8-tags, Cost Accounting) into the playbooks + study schedule. Then ran **Sprint 1 — Fixed Assets** (acquisition → depreciation → disposal, solo; Book Value 57k → gain 1k) and **Sprint 2 — Dimensions** (all 6 mechanics solo). Both **🟢**; **Milestone Gate 1 hit ~3.5 weeks early** (was due Aug 7). Wrote hands-on **testing playbooks** (FA v1.4, Dimensions v1.0) and set the per-session-playbook convention. Updated study schedule, gap-analysis v1.3, **FLIGHT-PLAN v1.2**. See `ai/reports/session-summary_2026-07-14.md`.
+
+**Next task:** **Sprint 3 — Journals & payments** (the heaviest remaining 🔴 gap) — payment/cash-receipt journals, apply/undo entries, reversals, **bank reconciliation**. Produce `ai/guides/journals-payments-testing-playbook.md` as we go. *(Plan slots this Aug 10–21, but Chris is ~3.5 wks ahead — can start anytime.)*
+
+**Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — also resolves the open **1267/1269** CONFUSION doc.
+
+**Key reference docs:** `ai/reports/mb800-study-schedule_v1.1.md` (sprint tracker) · `ai/reports/mb800-gap-analysis.md` · `ai/guides/*-testing-playbook.md` (FA/WIP/Dimensions) · `FLIGHT-PLAN.md` (v1.2).
+
+---
+
+## Where We Left Off (earlier — WIP/billing, June 2026)
 
 Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (internal + client-facing) with significant corrections:
 
@@ -48,9 +60,9 @@ Processed Morre session 4 transcript (June 9, 2026). Updated both playbooks (int
 
 3rd live engagement (Tentixo `ifrs-16-research` branch; Carla Rogers + Camilla + Morre): IFRS-16 / FRS-102 finance-lease accounting in BC. **Track knowledge only — do NOT act on these tasks.** Docs in `ai/reports/`: `ifrs16-lease-setup-guide-bc`, `ifrs-16-uk-frs102-bc-implementation`, `ifrs-16-leased-assets-research`, `ic-postings-issues-meeting`. Folded into MB-800 plan (`mb800-gap-analysis.md` v1.1): **Fixed Assets 🔴→🟡** (FA classes, depr. books, FA posting groups, Calculate Depreciation, FA G/L journals — seen live via Morre). Converts to 🟢 when Chris runs the sandbox dry-run himself (engagement action A5); **disposal** still untouched. See [[project-ifrs-engagement-channel]].
 
-## Next Task
+## Next Task (June 2026 — superseded; see ▶ CURRENT block at top)
 
-1. **Build the WIP testing playbook** — hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics. Lands in `ai/guides/`.
+1. ~~**Build the WIP testing playbook**~~ **DONE** (`ai/guides/wip-testing-playbook.md`). Hands-on companion to the codebook: simulate a project forward, run Calculate WIP each period, inspect Project WIP Entries + Project Statistics.
 2. ~~Sandbox audit~~ **DONE** — both halves clean (see Session notes). No VAT rename needed; Gen. Bus. groups fine.
 3. **MB-800**: gap analysis done → `ai/reports/mb800-gap-analysis.md`. Drive targeted sandbox exercises for the 🔴 gaps (journals/payments, inventory txns, fixed assets, security, dimensions, AP/purchasing). Note: Projects/WIP is *not* a dedicated exam domain.
 
