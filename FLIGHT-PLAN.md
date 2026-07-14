@@ -1,7 +1,7 @@
 # Business Central Learning — Flight Plan
 
-**Version:** 1.1
-**Updated:** 2026-06-10
+**Version:** 1.2
+**Updated:** 2026-07-14
 **Created:** 2026-06-02
 **Domain:** Business Central operational competence (Tentixo)
 
@@ -59,15 +59,15 @@ Assess a problem, know if it's within your repertoire or not, act or escalate ac
 
 ### M1: MB-800 — Dynamics 365 Business Central Functional Consultant Associate
 
-**Target**: Q4 2026
+**Target**: Q4 2026 — now scheduled for the **week of 9 Nov 2026**
 **Exam**: MB-800, ~60 questions, 100 min, pass at 700/1000, ~$165 USD
-**Status**: Planning — exam content updating June 30, 2026
+**Status**: **Active — executing the sprint schedule, ahead of plan** (see Progress below)
 
 **Why this cert, why now**: The MB-800 validates exactly the client-facing functional consultant role Chris is building (Anchor 2). It covers configuration, financials, sales/purchasing, and daily operations — the same territory Morre is teaching. Having the credential adds credibility with clients like Formpipe. It is *not* the developer cert (AL coding), which stays out of scope per Anchor 2.
 
 **How it fits Anchor 3**: Chris already has months of hands-on client work (Tinky, Formpipe) and Morre's architectural framework internalized. The cert consolidates that experience and systematically fills gaps that might not arise organically through current engagements.
 
-**Exam domains and readiness** (as of June 2026):
+**Exam domains and readiness** (baseline, June 2026):
 
 | Domain | Weight | Current level | Gap areas |
 |---|---|---|---|
@@ -76,11 +76,18 @@ Assess a problem, know if it's within your repertoire or not, act or escalate ac
 | Configure sales and purchasing | 10–15% | Partial | Purchase orders, vendor setup, purchase pricing |
 | Perform BC operations | 30–35% | Partial | Year-end close, financial reporting, inventory operations |
 
-**Approach**:
-1. Continue primary learning via client work and Morre sessions (Anchor 3)
-2. After June 30: map updated MB-800 study guide against playbook, identify specific gaps
-3. Fill gaps with targeted sandbox exercises (same pattern as Tinky/Formpipe setups)
-4. Take exam Q4 2026
+**Progress (as of 2026-07-14) — ahead of schedule:**
+- **Gap analysis + sprint schedule built** — `ai/reports/mb800-gap-analysis.md` (v1.3) and `ai/reports/mb800-study-schedule_v1.1.md`: 8 fortnightly sprints + a revision week, exam targeted for the **week of 9 Nov 2026**.
+- **Sprint 1 — Fixed Assets: ✅🟢** — full acquisition → depreciation → disposal lifecycle run **solo** in the sandbox (13–14 Jul), debugging every BC quirk unaided.
+- **Sprint 2 — Dimensions: ✅🟢** — all six mechanics (create, default, global-vs-shortcut, blocking, correction, priorities) run **solo** in the same session.
+- **Milestone Gate 1 (FA + Dimensions green) hit ~3.5 weeks early** (was due 7 Aug) — the "seen it → done it" jump (Anchor 6) landing faster than planned.
+- Each hands-on session now yields a reusable **testing playbook** in `ai/guides/` (FA, WIP, Dimensions) — a self-built revision library (Anchors 4 & 5 in action).
+
+**Approach** (now executing, not just planning):
+1. Continue primary learning via client work and Morre sessions (Anchor 3) — ongoing
+2. ~~Map updated MB-800 study guide against playbook, identify gaps~~ **✅ done** → gap analysis + schedule built
+3. Fill gaps with targeted sandbox exercises (same pattern as Tinky/Formpipe) — **in progress**; next: Sprint 3, Journals & payments (heaviest remaining 🔴 gap)
+4. Two full mock exams, then take the exam (week of 9 Nov 2026)
 
 **Renewal**: Annual free online assessment — not a significant maintenance burden.
 
@@ -96,3 +103,8 @@ Assess a problem, know if it's within your repertoire or not, act or escalate ac
 **Version 1.1** (2026-06-10):
 - Added Milestones section with MB-800 certification target (Q4 2026)
 - Updated Anchor 3 to include certification as a consolidation step, not a starting point
+
+**Version 1.2** (2026-07-14):
+- M1 status: Planning → **Active**; exam pinned to the week of 9 Nov 2026
+- Added a **Progress** block: Sprints 1 (Fixed Assets) & 2 (Dimensions) complete solo, **Milestone Gate 1 hit ~3.5 weeks early**; per-session testing playbooks now produced in `ai/guides/`
+- Relabelled the June readiness table as the baseline; updated the Approach to reflect execution (gap analysis + schedule done; Sprint 3 next)
