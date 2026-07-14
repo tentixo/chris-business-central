@@ -335,3 +335,7 @@ cython_debug/
 # Dolt database files (added by bd init)
 .dolt/
 *.db
+
+# Ad-hoc BC screenshots shared during sessions (keep the repo text-focused).
+# Real diagrams (e.g. docs/FGGE-Machinery_v4.png) are committed explicitly.
+docs/Screenshot*.png
