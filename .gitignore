@@ -339,3 +339,8 @@ cython_debug/
 # Ad-hoc BC screenshots shared during sessions (keep the repo text-focused).
 # Real diagrams (e.g. docs/FGGE-Machinery_v4.png) are committed explicitly.
 docs/Screenshot*.png
+
+# Ad-hoc BC Excel exports (ledger/setup dumps, regenerable from BC).
+# Genuine reference exports are kept via the negation below.
+docs/*.xlsx
+!docs/Chart of Accounts*.xlsx
