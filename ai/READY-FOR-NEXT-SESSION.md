@@ -1,16 +1,16 @@
 # Ready for Next Session
 
-**Last Updated**: 2026-07-14
+**Last Updated**: 2026-07-15
 **Risk Level**: LOW
-**Git Status**: Clean — all committed & pushed to `origin/main` (`cd23fae`).
+**Git Status**: Clean — all committed & pushed to `origin/main`.
 
 ---
 
-## ▶ CURRENT — Session 2026-07-13/14 (MB-800 sprint execution)
+## ▶ CURRENT — MB-800 sprint execution (13–15 Jul)
 
-**Where we left off:** Executed the MB-800 study plan hands-on. Folded **Morre Call 16** (dependency graph: foundation spine, Rim-vs-Crafted, dimensions-as-8-tags, Cost Accounting) into the playbooks + study schedule. Then ran **Sprint 1 — Fixed Assets** (acquisition → depreciation → disposal, solo; Book Value 57k → gain 1k) and **Sprint 2 — Dimensions** (all 6 mechanics solo). Both **🟢**; **Milestone Gate 1 hit ~3.5 weeks early** (was due Aug 7). Wrote hands-on **testing playbooks** (FA v1.4, Dimensions v1.0) and set the per-session-playbook convention. Updated study schedule, gap-analysis v1.3, **FLIGHT-PLAN v1.2**. See `ai/reports/session-summary_2026-07-14.md`.
+**Done:** **Sprint 1 — Fixed Assets 🟢** and **Sprint 2 — Dimensions 🟢** (both solo, 13–14 Jul; Milestone Gate 1 hit ~3.5 wks early). **Sprint 3 — Journals & payments ◐** (15 Jul): built a fictitious **vendor + customer** from scratch, posted purchase & sales invoices, and ran **both apply cycles solo** — Payment Journal → apply → AP closed; Cash Receipt Journal → apply → AR closed. Deep **VAT-Posting-Setup detour** on the sales side (captured). Testing playbooks written for FA (v1.4), Dimensions (v1.0), Journals & Payments (v1.0, Parts 1–3).
 
-**Next task:** **Sprint 3 — Journals & payments** (the heaviest remaining 🔴 gap) — payment/cash-receipt journals, apply/undo entries, reversals, **bank reconciliation**. Produce `ai/guides/journals-payments-testing-playbook.md` as we go. *(Plan slots this Aug 10–21, but Chris is ~3.5 wks ahead — can start anytime.)*
+**Next task:** **Finish Sprint 3 — Parts 4 & 5** → (4) **reverse / unapply** an entry; (5) **bank reconciliation** (the sprint checkpoint — match the Part 2 payment + Part 3 receipt against a statement, post). Then Sprint 3 → 🟢. See `ai/guides/journals-payments-testing-playbook.md` (Parts 4–5 are stubbed there).
 
 **Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — also resolves the open **1267/1269** CONFUSION doc.
 
