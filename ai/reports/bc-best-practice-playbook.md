@@ -1,9 +1,9 @@
 # Business Central — Best Practice Playbook
 
-**Version**: 0.4 — Draft
+**Version**: 0.5 — Draft
 **Status**: In progress
 **Created**: 2026-06-04
-**Updated**: 2026-07-13
+**Updated**: 2026-07-16
 **Author**: Tentixo AB
 **Scope**: Recommended patterns for Business Central setup, posting architecture, and project management
 
@@ -206,11 +206,11 @@ Splitting Gen. Business Posting Groups by geography (DOMESTIC, EU, EXPORT) is a 
 
 ## 5. Master data — items, resources, and the people registers
 
-### 5.1 Items: always Service-type for non-physical deliverables
+### 5.1 Items: use a non-stocked type (Service or Non-Inventory) for non-physical deliverables
 
 | Decision | Recommendation | Why |
 |----------|---------------|-----|
-| Item Type for consulting/services | **Service** | Inventory type triggers stock tracking, negative inventory warnings, and cost valuation — all noise for service delivery |
+| Item Type for consulting/services | **Service** (default) or **Non-Inventory** | Use any **non-stocked** type. **Inventory** is the only wrong choice — it triggers stock tracking, negative-inventory warnings, and cost valuation, all noise for service delivery. Default to **Service** (semantic fit for a service, matches convention); **Non-Inventory** is equally valid (incl. for subscription items — verified 2026-07-16). |
 | Unit Price on the item | **0** or catalogue reference price | Real prices belong in Price Lists, not the item card. A reference/catalogue price on the item is acceptable; customer-specific overrides go via price lists. |
 | Base Unit of Measure | **EA** (each) | EA is the international ISO standard code used in electronic invoicing. PCS is a pointer to EA internally — both work, but EA is correct. |
 
@@ -352,7 +352,7 @@ When both are active for the same customer, they generate **separate invoices**.
 ```mermaid
 graph TD
     SETUP["<b>Subscription Contract Setup</b><br/><i>Number series, defaults,<br/>invoice text arrangement</i>"]
-    ITEM["<b>Subscription Item</b><br/><i>Type: Non-Inventory<br/>Subscription Option: Subscription Item</i>"]
+    ITEM["<b>Subscription Item</b><br/><i>Type: Service or Non-Inventory<br/>Subscription Option: Subscription Item</i>"]
     CONTRACT["<b>Customer Subscription Contract</b><br/><i>Customer + subscription line<br/>(item, price, rhythm)</i>"]
     TEMPLATE["<b>Billing Template</b><br/><i>Automation engine<br/>(batches all contracts)</i>"]
     PROPOSAL["Billing Proposal"]
@@ -374,7 +374,7 @@ graph TD
 
 **Subscription Contract Setup** (one-time, global): Number series for contracts and subscriptions, default billing rhythm (typically `1M` for monthly), period calculation alignment, and invoice text arrangement. The **"Billing Period"** option under Arrange Texts → Description must be set — without it, document creation fails.
 
-**Subscription Item**: A Non-Inventory item with Subscription Option set to "Subscription Item". This ensures the item is only available through subscription contracts, not on regular sales invoices or project billing. Price is set on the contract, not the item card (Unit Price = 0).
+**Subscription Item**: A **Service or Non-Inventory** item (any non-stocked type; Service is the default) with Subscription Option set to "Subscription Item". This ensures the item is only available through subscription contracts, not on regular sales invoices or project billing. Price is set on the contract, not the item card (Unit Price = 0).
 
 **Customer Subscription Contract**: Links a customer to one or more subscription lines. Each line defines the item, quantity, price, billing rhythm, and start date. Deferrals can be enabled or disabled per contract depending on revenue recognition requirements.
 
@@ -467,7 +467,7 @@ These are the patterns we most frequently encounter in BC implementations that h
 | **Item duplication** | "Heat Map - SE", "Heat Map - NO", "Heat Map - EU" | Posting groups not configured — geography baked into items | Set up WHO × WHAT matrix; one item handles all geographies |
 | **Dimension overload** | 15+ dimensions, reports take minutes | Granularity put on dimensions instead of proper registers (Resources, Projects, Posting Groups) | Move granularity to the correct BC register; reserve dimensions for true cross-cutting analytics |
 | **Decisions baked onto postings via dimensions** | A cost split (e.g. 60/40 across departments) can't be revised without reversing and re-posting | Dimensions are permanent once posted — a *crafted* allocation decision was hard-coded onto the raw posting | Keep revisable allocations out of the posting. Use **Cost Accounting** (a separate ledger) for re-allocation, so analysts change 60/40 → 50/50 without disturbing the original entry |
-| **Inventory type for services** | Negative inventory warnings, cost valuation noise | Item created as "Inventory" instead of "Service" | Change item type to Service; remove Inventory Posting Group |
+| **Inventory type for services** | Negative inventory warnings, cost valuation noise | Item created as "Inventory" instead of a non-stocked type | Change item type to **Service or Non-Inventory**; remove Inventory Posting Group |
 | **Hardcoded prices** | Price changes require editing every item | Prices on item cards instead of Price Lists | Set item price to 0, create customer/project-specific Price Lists |
 | **Parent + child account posting** | Totals don't add up, manual reconciliation needed | Postings to both a summary account and its children | Pick one level — either the parent or the children, never both |
 | **Manual hour re-keying** | Finance re-types time data from external systems | No integration between time tracking and BC | Use BC's Project Journal (or API integration) as the single entry point |
@@ -563,3 +563,4 @@ Tentixo can help with:
 | 0.1     | 2026-06-04 | Initial draft        |
 | 0.2     | 2026-06-09 | Updated with Morre's session 4 feedback |
 | 0.3     | 2026-06-12 | Added §7 Subscription Billing (components, workflow, posting flow, scalability). Renumbered §8–§12. |
+| 0.5     | 2026-07-16 | Corrected item-type guidance (§5.1, §7.2 diagram, §9): a subscription/service item can be **Service *or* Non-Inventory** — Service recommended, not required; only Inventory is wrong. Sandbox-verified after Morre flagged the "must be Non-Inventory" line. |

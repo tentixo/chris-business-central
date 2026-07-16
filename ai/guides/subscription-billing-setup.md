@@ -1,7 +1,8 @@
 # Subscription Billing — Setup Guide
 
-**Version**: 1.0
+**Version**: 1.1
 **Created**: 2026-06-12
+**Updated**: 2026-07-16 — corrected the Item Type guidance: **Service is recommended, not required**; Non-Inventory also works as a Subscription Item (sandbox-verified, after Morre flagged it). Only Inventory is wrong.
 **Author**: Tentixo AB
 **Scope**: End-to-end setup of recurring subscription billing in Business Central
 **Audience**: BC functional user or administrator
@@ -59,7 +60,7 @@ The item represents what you're billing for on the subscription. It's separate f
 |---|---|---|
 | No. | A descriptive code (e.g., `SEC-RETAINER`) | |
 | Description | What appears on the invoice (e.g., "Monthly Security Retainer") | |
-| Type | **Non-Inventory** | Required for Subscription Items |
+| Type | **Service** *(or Non-Inventory)* | Any **non-stocked** type works — Inventory is the only wrong choice. See note below. |
 | Base Unit of Measure | `EA` | |
 | Gen. Prod. Posting Group | Match your service category (Tentixo: `C-MAIN1` consulting) | Controls which revenue account the invoice hits (3211) |
 | VAT Prod. Posting Group | Match your VAT category (Tentixo: `S-FULL` services full VAT) | Semantic, not percentage-based |
@@ -75,7 +76,7 @@ The item represents what you're billing for on the subscription. It's separate f
 | **Subscription Item** | Subscription-only — won't appear in regular sales invoices or project billing. Use this for a pure retainer. |
 | **Invoicing Item** | Used as the billing line on the generated invoice, not the subscribed item itself. |
 
-**Why Non-Inventory?** The "Subscription Item" option requires Type = Non-Inventory. This is correct for a recurring billing item — there's no stock to track, and the subscription engine drives the billing, not a shipment or service delivery event.
+**Why a non-stocked type?** A subscription item must be **non-stocked** — there's no stock to track, and the subscription engine drives the billing, not a shipment. **Both `Service` and `Non-Inventory` work** as a Subscription Item — *verified in-sandbox 2026-07-16: a Non-Inventory item can be flagged Subscription Item.* We **default to `Service`** because a retainer is an intangible service and it matches the standing convention ("Service-type items, not Inventory"); reach for **`Non-Inventory`** if the subscription rides on a physical-but-unstocked good. The **only** wrong choice is **`Inventory`** — it triggers stock tracking, negative-inventory traps, and valuation noise. *(Earlier drafts said Service was "required" — that was incorrect; corrected after Morre flagged it.)*
 
 ---
 
@@ -198,7 +199,7 @@ When satisfied, click **Post** (or **Post & Send** to email the invoice to the c
 | "Billing Template does not exist" | No billing template selected or created | Create a Billing Template (Step 4) |
 | "Configuration incomplete — Billing Period as description" | Arrange Texts → Description not set in Subscription Contract Setup | Set Description to "Billing Period" on the setup page (Step 1) |
 | Billing proposal is empty | Billing to Date doesn't cover the contract's Next Billing Date | Extend Billing to Date to cover the billing period |
-| "Subscription Item only available for Non-Inventory" | Item Type is set to Service | Change item Type to Non-Inventory (Step 2) |
+| "Subscription Item" option not selectable | Item **Type = Inventory** | Change Type to **Service or Non-Inventory** (Step 2). Only Inventory items are barred from being Subscription Items; both non-stocked types are fine. |
 
 ---
 

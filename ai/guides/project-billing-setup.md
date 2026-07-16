@@ -67,7 +67,7 @@ The item is the invoiceable deliverable (e.g., the fixed-price Heat Map).
 
 | Field | Value | Notes |
 |---|---|---|
-| Type | **Service** | Service type is for project billing items (contrast: subscription items must be Non-Inventory) |
+| Type | **Service** | Service type is for project billing items (subscription items are also non-stocked — Service or Non-Inventory) |
 | Base Unit of Measure | `EA` | International standard; PCS maps to EA internally |
 | Gen. Prod. Posting Group | `C-MAIN1` | Consulting — human-bound delivery → controls revenue account (3211) |
 | VAT Prod. Posting Group | `S-FULL` | Services, full VAT. Semantic name, **not** `VAT25` (percentage-based names are an anti-pattern) |
