@@ -73,7 +73,12 @@ A **SvcItem** (Service Management) is a record for **a specific physical unit at
 
 ## 5. Subscription Billing (SubBill) — item-type rules by Subscription Option
 
-The **Subscription Option** field (Item Card → *Prices and Sales* FastTab) governs behaviour and constrains the Item Type (MS Learn, *Subscription lines for items*):
+The **Subscription Option** field (Item Card → *Prices and Sales* FastTab) governs behaviour and constrains the Item Type (MS Learn, *Subscription lines for items*).
+
+**Two clarifications that dissolve most confusion:**
+- **"Subscription Item" is a *role*, not a fourth Type.** *Type* (Inv/nInv/Svc) and *Subscription Option* are two independent Item-card fields. A "Subscription Item" = a **Non-Inventory** item whose Subscription Option = Subscription Item.
+- **A subscription line ≠ a normal line.** A subscription line is a **recurring** obligation (fields: Billing Rhythm, Billing Base Period, Calculation Base %, Initial/Subsequent Term, Notice Period), billed **only via a Contract** — *never on the sales invoice*, and created automatically when the item is **delivered** (shipment posting). A normal line bills once, on the invoice.
+
 
 | Subscription Option | Item Type allowed | Behaviour |
 |---|---|---|
@@ -104,12 +109,12 @@ Tinky's retainer = **SubBill**. Nothing to do with SvcItems or SvcSub.
 
 ## 7. Open questions / pending sandbox tests
 
-| # | Question | MS Learn prediction | Status |
+| # | Question | Result | Status |
 |---|---|---|---|
-| 1 | Is **`Item.Svc` → Subscription Option = "Subscription Item"** selectable? | **Blocked** (Subscription Item = `Item.nInv` only) | ⏳ **PENDING** — test with Chris |
-| 2 | Confirm **`Item.Inv` → Sales with Subscription** works end-to-end (ship → subscription created) | Allowed | ⏳ pending |
+| 1 | Is **`Item.Svc` → Subscription Option = "Subscription Item"** selectable? | **BLOCKED** — Subscription Item is offered *only* for `Item.nInv`. `Item.Svc` and `Item.Inv` can pick **Sales with Subscription** but **not** Subscription Item. | ✅ **RESOLVED 2026-07-17** (matches MS Learn) |
+| 2 | Confirm **`Item.Inv` → Sales with Subscription** works end-to-end (ship → subscription created) | `Item.Inv` accepts *Sales with Subscription* on the item card ✅ | ◐ card confirmed; full ship→sub flow still to run |
 
-> When Test #1 resolves: if **blocked** → the three how-to docs revert to **`Item.nInv`** for the retainer (the original was right; the "Service or Non-Inventory" fix over-corrected). If **allowed** → document "nInv (Svc also accepted in this build)."
+**Resolution:** Subscription Item = **`Item.nInv` only** (confirmed). The "Service or Non-Inventory" wording (added 2026-07-16 after Morre's semantic challenge) **over-corrected** — the *original* `Item.nInv` was right. How-to docs reverted 2026-07-17.
 
 ---
 
