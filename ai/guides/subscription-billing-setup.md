@@ -4,8 +4,9 @@
 **Created**: 2026-06-12
 **Updated**: 2026-07-17 — **Item Type = Non-Inventory is *required*** for the Subscription Item option (sandbox-confirmed: Service & Inventory both blocked; matches MS Learn). This supersedes the 2026-07-16 "Service or Non-Inventory" note, which over-corrected. See `ai/project-docs/bc-taxonomy-reference_v1.0.md`.
 **Author**: Tentixo AB
-**Scope**: End-to-end setup of recurring subscription billing in Business Central
+**Scope**: End-to-end setup of recurring subscription billing in Business Central — the **pure retainer** (*Subscription Item*) pattern.
 **Audience**: BC functional user or administrator
+**Companion**: for a **sold-once item + recurring** charge (hardware + support, install + monthly), see `sales-with-subscription-setup.md` (the *Sales with Subscription* pattern).
 
 ---
 
