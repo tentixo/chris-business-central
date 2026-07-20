@@ -1,7 +1,8 @@
 # Journals & Payments — Hands-On Testing Playbook
 
-**Version**: 1.0 *(Parts 1–3 complete from Chris's first run; Parts 4–5 land next session)*
+**Version**: 1.1 *(all Parts 1–5 complete & verified — Chris's solo run, Jul 2026)*
 **Created**: 2026-07-15
+**Updated**: 2026-07-20 — Parts 4 (unapply + reverse) & 5 (bank reconciliation) completed and written up with field notes; Sprint 3 → 🟢.
 **Type**: Sandbox exercise sheet (do-it-yourself). Companions: `fixed-assets-testing-playbook.md`, `dimensions-testing-playbook.md`, study schedule **Sprint 3**.
 **Goal**: go from "seen it" → "done it" on **Journals & Payments** — MB-800's **heaviest domain (D4, 30–35%)**. Build the **payment → apply → close** cycle on *both* the AP and AR sides, then (next) **reverse** and **bank reconciliation**.
 
@@ -90,14 +91,30 @@ You need an **open AP** entry to pay and an **open AR** entry to receive. Build 
 
 ---
 
-## Part 4 — Apply / unapply + Reverse *(next session)*
+## Part 4 — Unapply + Reverse (the two "undo" mechanics)
 
-- **Unapply**: on a closed entry, *Unapply* to re-open it (the corrective inverse of Apply).
-- **Reverse**: on a posted G/L/ledger entry, **Reverse Transaction** creates a mirror-image posting (vs *correcting* a document). Understand reverse-vs-correct-vs-credit-memo.
+Take the paid invoice from Part 2 and undo it — a realistic *"we paid the wrong one"* correction.
 
-## Part 5 — Bank Reconciliation *(next session — the checkpoint 🎯)*
+**4a — Unapply** (detach payment ↔ invoice): `Alt+Q` → "Vendor Ledger Entries" → select the **Payment** → **Process → Unapply Entries** → confirm. Both the invoice and payment flip back to **Open**.
 
-Reconcile the bank account against a statement: import/enter statement lines, **match** them to the payment (Part 2) + receipt (Part 3), resolve differences, **Post** the reconciliation. This is the Sprint 3 checkpoint deliverable. *(Ties to Masha's bank-XML method — `masha-bc-sessions.md §11`.)*
+**4b — Reverse** (mirror-post the payment out): on the now-**unapplied** payment → **Process → Reverse Transaction** → review the mirror lines (bank, AP, vendor ledger, bank ledger) → **Reverse**. A new reversal entry nets the payment to zero; the invoice stays Open/unpaid.
+
+> ⚠️ **FIELD NOTES (first run):**
+> - **You cannot Reverse an *applied* entry** — BC blocks it. **Unapply first**, and the unapply is a **posting step that must complete and re-open the invoice** before Reverse works. *(Reaching the Reverse preview screen proves nothing — the block is at the Reverse click.)*
+> - **Reverse creates a NEW mirror entry** (e.g. a −1,250 counter-payment); the original **and** the reversal both stay in the ledger and close each other — that's the audit trail. Distinct from **Unapply** (just detaches), **Correct** (cancel + recreate a document), and **Credit Memo** (a new offsetting document). Four different "undo" tools.
+
+## Part 5 — Bank Reconciliation (the checkpoint 🎯)
+
+`Alt+Q` → **"Bank Account Reconciliations"** → **+ New** → Bank Account, Statement Date. The page has **Bank Statement Lines** (the bank's side) vs **Bank Account Ledger Entries** (BC's records).
+
+1. **Bank → Suggest Lines** (optionally a date range) → BC creates statement lines from outstanding bank ledger entries and **auto-matches** them.
+2. Set **Statement Ending Balance** so **Total Difference = 0**.
+3. **Post** → the reconciliation becomes a **Bank Account Statement** (a posted record, with an **Undo** action).
+
+> ⚠️ **FIELD NOTES (first run):**
+> - On a **busy shared bank** (e.g. LCY-MAIN with a real backlog), a *fully-balanced* reconciliation needs the bank's **complete** statement. But BC will **post a *partial* reconciliation** — match just the entries on your statement (Total Difference 0), and the rest stays **outstanding** for future statements. That's a valid rec and enough to demonstrate the mechanic. *(A payment + its Part-4 reversal net to zero and match as a natural pair.)*
+> - Two tools: **Bank Account Reconciliation** (statement ↔ ledger, this exercise) vs **Payment Reconciliation Journal** (imports a bank feed/CAMT and matches to *open* invoices — Masha's monthly method, `masha-bc-sessions.md §11`).
+> - 🏢 Reconciling a shared bank in a Test company: **clear it with the owner first** (Morre OK'd LCY-MAIN here). For a fully-isolated clean rec, use a dedicated `CTEST-BANK` with only your own transactions.
 
 ---
 
@@ -108,7 +125,8 @@ Reconcile the bank account against a statement: import/enter statement lines, **
 - [ ] **Paid** the vendor (Payment Journal + **Apply**) → invoice **Open = No**.
 - [ ] **Received** from the customer (Cash Receipt Journal + **Apply**) → invoice **Open = No**.
 - [ ] Can **explain to Morre**: why **Apply / Set Applies-to ID** is essential; the **WHO × WHAT VAT matrix**; how to read **VAT Posting Setup** to diagnose a "blocked/missing" error.
-- [ ] *(Pending Part 4–5)* reversed an entry; posted a **bank reconciliation**.
+- [ ] **Unapplied** a payment (re-opened the invoice), then **Reversed** it (mirror entry) — and can explain unapply vs reverse vs correct vs credit-memo.
+- [ ] Posted a **bank reconciliation** (Suggest Lines → match → Post → Bank Account Statement); understand partial vs full reconciliation on a busy bank.
 
 ---
 

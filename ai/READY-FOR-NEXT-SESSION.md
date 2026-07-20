@@ -10,7 +10,9 @@
 
 **Done:** **Sprint 1 — Fixed Assets 🟢** and **Sprint 2 — Dimensions 🟢** (both solo, 13–14 Jul; Milestone Gate 1 hit ~3.5 wks early). **Sprint 3 — Journals & payments ◐** (15 Jul): built a fictitious **vendor + customer** from scratch, posted purchase & sales invoices, and ran **both apply cycles solo** — Payment Journal → apply → AP closed; Cash Receipt Journal → apply → AR closed. Deep **VAT-Posting-Setup detour** on the sales side (captured). Testing playbooks written for FA (v1.4), Dimensions (v1.0), Journals & Payments (v1.0, Parts 1–3).
 
-**Next task:** **Finish Sprint 3 — Parts 4 & 5** → (4) **reverse / unapply** an entry; (5) **bank reconciliation** (the sprint checkpoint — match the Part 2 payment + Part 3 receipt against a statement, post). Then Sprint 3 → 🟢. See `ai/guides/journals-payments-testing-playbook.md` (Parts 4–5 are stubbed there).
+**Next task:** **Sprint 3 is 🟢 (done 20 Jul)** — Journals & payments complete (invoices, apply cycles, unapply+reverse, posted bank rec). **Next up = Sprint 4 — Purchasing & AP** (vendor setup already partly done via the Ctest vendor; PO cycle, purchase pricing/discounts). Also open: Sprint 2 **Cost Accounting sketch** (non-exam), FA **LVA + loss disposal**, Lasernet **lease Exercise 2**.
+
+*Note:* Sprints 1 (FA), 2 (Dimensions), 3 (Journals & payments) all 🟢 — **3 of 8 sprints done, well ahead of schedule.** Big side-quest also completed & documented: the full **Subscription Billing** taxonomy + two client setup guides (Subscription Item vs Sales with Subscription).
 
 **Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — also resolves the open **1267/1269** CONFUSION doc.
 
