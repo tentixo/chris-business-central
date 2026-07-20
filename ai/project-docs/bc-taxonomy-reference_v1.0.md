@@ -92,6 +92,18 @@ The **Subscription Option** field (Item Card → *Prices and Sales* FastTab) gov
 
 **Physical-product subscription pattern** (e.g. hardware + service plan): `Item.Inv` product (sold once, ships/picks/plans normally) with **Sales with Subscription** → recurring charge carried by a separate `Item.nInv` **Invoicing Item**. Subscription auto-created on shipment; **Inventory Pick** supported (start date from posting/shipment date).
 
+### 5.1 Worked example — a *Service* item billing recurringly, end-to-end (verified live 2026-07-20)
+
+Proves `Item.Svc` **can** drive subscription revenue via **Sales with Subscription** (never as a standalone Subscription Item):
+
+1. **`Item.Svc`** `CTEST-SVC-SUBTEST` (Type = Service), Subscription Option = **Sales with Subscription** (*Subscription Item* was validation-blocked), Unit Price 5,000.
+2. **`Item.nInv` Invoicing Item** `CTEST-INVITEM` (Subscription Option = **Invoicing Item** — *accepted*, the mirror of the Service block). Carries the recurring billing line.
+3. **Subscription Package** `CTEST-SUB-1M`: Partner = Customer, Invoicing via = **Subscription Contract**, Invoicing Item = CTEST-INVITEM, Calc Base = **Document Price 10%**, Billing Rhythm **1M**. Assigned to the Service item as **Standard**.
+4. **Sales order** → Service item: bills the **one-off 5,000** *and* auto-attaches the subscription line (Subscription Lines = 1; the recurring amount is **excluded** from the order total). **Ship & Invoice** → one-off invoice **6,250** *and* **Subscription B-SUB00002** created on shipment.
+5. **Customer Subscription Contract B-SCC00002** → **Get Subscription Lines** pulls the unassigned line in → **Create Contract Invoice** → recurring invoice **B-SX000007 = 500 + VAT (625)**, monthly, **posted via CTEST-INVITEM** (the Non-Inv item, *not* the Service item).
+
+**Takeaway:** the recurring charge always bills through the **Non-Inventory Invoicing Item**; the Service item is the *sold-once* line that *spawns* the subscription. Contrast with a pure retainer (`Item.nInv` + Subscription Item, e.g. B-SUB00001), which has no one-off and bills the item directly via contract.
+
 ---
 
 ## 6. Two recurring-billing engines — don't cross them
@@ -112,9 +124,11 @@ Tinky's retainer = **SubBill**. Nothing to do with SvcItems or SvcSub.
 | # | Question | Result | Status |
 |---|---|---|---|
 | 1 | Is **`Item.Svc` → Subscription Option = "Subscription Item"** selectable? | **BLOCKED** — Subscription Item is offered *only* for `Item.nInv`. `Item.Svc` and `Item.Inv` can pick **Sales with Subscription** but **not** Subscription Item. | ✅ **RESOLVED 2026-07-17** (matches MS Learn) |
-| 2 | Confirm **`Item.Inv` → Sales with Subscription** works end-to-end (ship → subscription created) | `Item.Inv` accepts *Sales with Subscription* on the item card ✅ | ◐ card confirmed; full ship→sub flow still to run |
+| 2 | Does **Sales with Subscription** drive recurring billing end-to-end (incl. from a `Item.Svc`)? | **YES — proven live 2026-07-20** with a *Service* item: sold once → Subscription **B-SUB00002** born on shipment → Contract **B-SCC00002** → recurring invoice **B-SX000007** (500 + VAT), **posted**. | ✅ **RESOLVED** (see worked example §5.1) |
 
 **Resolution:** Subscription Item = **`Item.nInv` only** (confirmed). The "Service or Non-Inventory" wording (added 2026-07-16 after Morre's semantic challenge) **over-corrected** — the *original* `Item.nInv` was right. How-to docs reverted 2026-07-17.
+
+**Verbatim BC error** (selecting `Subscription Item` on a `Service` item, 2026-07-20): *"The value 'Subscription Item' can only be set if the option 'Non-Inventory' is selected in the 'Type' field."* — the validation rule surfaced directly (no AL source needed). The Subscription Option enum *lists* all four values, but the Type constraint is enforced **on selection**, not by hiding options.
 
 ---
 
