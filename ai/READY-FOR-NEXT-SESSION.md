@@ -1,22 +1,27 @@
 # Ready for Next Session
 
-**Last Updated**: 2026-07-23
+**Last Updated**: 2026-07-23 (late)
 **Risk Level**: LOW
-**Git Status**: Clean — all committed to `main` (`3f5c0c9`).
+**Git Status**: Clean — all committed & pushed to `origin/main`.
 
 ---
 
-## ▶ CURRENT — MB-800 sprint execution + first diagnostic mock (23 Jul)
+## ▶ CURRENT — MB-800 sprint execution (23 Jul — Sprints 4 & 5 + Mock #1)
 
-**Done this session:** **Sprint 4 — Purchasing & AP 🟢** (solo). Full **procure-to-pay via a Purchase Order**: PO → **Receive** → **Invoice** → **Pay**, with the **Qty. to Receive vs Qty. to Invoice** two-step split traced to the G/L (Dr 5061 / Dr 2641 input VAT / Cr 2441 AP) → payment-journal apply → invoice closed. Plus **purchase Price List** (special price ≥10→90 + line discount ≥5→10% = 810; the **Defines/Amount Type** column), **partial receipt + Undo Receipt** (−4 corrective line, audit trail), and a **Blanket PO → Make Order** call-off. Playbook `ai/guides/purchasing-ap-testing-playbook.md` **v1.0**. **4 of 8 sprints 🟢, ~4.5 wks early.**
+**Done this session (long one — Sprints 4 AND 5 + first mock):**
+- **Sprint 4 — Purchasing & AP 🟢**: full **procure-to-pay via PO** (Receive/Invoice split traced 5061/2641/2441 → pay → close), **purchase Price List** (special price + line discount, Defines/Amount Type), **partial receipt + Undo Receipt**, **Blanket PO → Make Order**. Playbook `purchasing-ap-testing-playbook.md` v1.0.
+- **Sprint 5 — Inventory 🟢**: FIFO item full lifecycle — **Item Journal** inbound (2 cost layers 100/120) → **ship 15 → FIFO −1,600 traced** (estimate-then-adjust, +50 = FIFO-vs-Avg — **Mock #1 gap CLOSED, watched live**) → **Transfer Order** MAIN→DIST-SE (3-legged) → **Physical count** shrinkage. Completed 3 missing Inventory Posting Setup rows. Playbook `inventory-testing-playbook.md` v1.0.
+- **🎓 Diagnostic Mock #1: 19/25 = 76%** (D1 80🟢 · D2 71🟡 · D3 83🟢 · D4 71🟡). **Key finding: 3 of 6 misses were in "green" hands-on domains** → ratings are **"operationally green, exam-amber"** (can DO, fumbled CONCEPT recall). 10-min drill fixed most.
 
-**🎓 Diagnostic Mock #1 (first ever): 19/25 = 76%** (pass bar ~70%). Heat-map: D1 Setup/Security 80% 🟢 · D2 Financials 71% 🟡 · D3 Sales&Purchasing 83% 🟢 · D4 Operations 71% 🟡. **Key finding: 3 of 6 misses were in "green" hands-on domains** (FA depreciation-netting, dimension Code-Mandatory-vs-Same-Code, reverse-blocked-by-applied) → green ratings are **"operationally green, exam-amber"**: can DO the flows, fumbled the CONCEPT questions under test. Ran a 10-min recall drill that fixed most; **FIFO directionality + Average-cost-period + reverse-blocked-rule still need warming.** Real *content* gap = **inventory costing methods** (→ Sprint 5).
+**5 of 8 sprints 🟢, ~7 wks early.**
 
-**Next task:** **Sprint 5 — Inventory** (item types, **costing methods FIFO/Avg/Standard/Specific front-and-centre**, locations, item journal, transfer order, physical count, adjust cost — trace to G/L). Also carry a light **concept-recall drill habit** (definitions, swapped-pair traps), not just sandbox reps. Mock #2 later per schedule.
+**Next task:** **Sprint 6 — Setup & Security** (permission sets, security groups/filters, config packages, opening balances, number series manual-vs-auto, job queues, approval workflows). **This is Chris's single thinnest untested domain** — least like the posting flows he's fluent in; the mock flagged security-filter recall. Then **Mock #2** as the real all-domain gauge.
 
-**Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — resolves the open **1267/1269** CONFUSION doc. Flag for Morre: sandbox **missing Purch. Account** in General Posting Setup (blocks item-line purchase posting) + DOM full-rate VAT completeness.
+**Watch-items (honest):** exam is *timed* — the value of Sprints 4/5 isn't just "it works" but recognising setup dependencies fast (re-read inventory playbook Part 2). Recall-precision (swapped-pair definitions) still the soft spot. Don't let "5/8, weeks early" breed complacency on Sprint 6.
 
-**Key reference docs:** `ai/reports/mb800-study-schedule_v1.1.md` (sprint tracker — Sprint 4 ✅🟢) · `ai/reports/mb800-gap-analysis.md` · `ai/guides/*-testing-playbook.md` (FA/WIP/Dimensions/Journals/**Purchasing-AP**) · `FLIGHT-PLAN.md` (v1.2). Mock #1 key: `scratchpad/mock1-answer-key.md` (session-local).
+**Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — resolves open **1267/1269** CONFUSION doc. **Flag list for Morre:** sandbox **missing Purch. Account** (General Posting Setup, blocks item-line purchase posting), **Location Mandatory ON but only blank-location Inventory Posting Setup** (had to add MAIN/DIST-SE/IN-TR-US × MERCH rows), DOM full-rate VAT completeness.
+
+**Key reference docs:** `ai/reports/mb800-study-schedule_v1.1.md` (tracker — Sprints 1–5 ✅🟢) · `ai/reports/mb800-gap-analysis.md` · `ai/guides/*-testing-playbook.md` (FA/WIP/Dimensions/Journals/Purchasing-AP/**Inventory**) · `FLIGHT-PLAN.md` (v1.2). Mock #1 key: `scratchpad/mock1-answer-key.md` (session-local).
 
 ---
 
