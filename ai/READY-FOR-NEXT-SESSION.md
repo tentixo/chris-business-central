@@ -1,22 +1,22 @@
 # Ready for Next Session
 
-**Last Updated**: 2026-07-15
+**Last Updated**: 2026-07-23
 **Risk Level**: LOW
-**Git Status**: Clean — all committed & pushed to `origin/main`.
+**Git Status**: Clean — all committed to `main` (`3f5c0c9`).
 
 ---
 
-## ▶ CURRENT — MB-800 sprint execution (13–15 Jul)
+## ▶ CURRENT — MB-800 sprint execution + first diagnostic mock (23 Jul)
 
-**Done:** **Sprint 1 — Fixed Assets 🟢** and **Sprint 2 — Dimensions 🟢** (both solo, 13–14 Jul; Milestone Gate 1 hit ~3.5 wks early). **Sprint 3 — Journals & payments ◐** (15 Jul): built a fictitious **vendor + customer** from scratch, posted purchase & sales invoices, and ran **both apply cycles solo** — Payment Journal → apply → AP closed; Cash Receipt Journal → apply → AR closed. Deep **VAT-Posting-Setup detour** on the sales side (captured). Testing playbooks written for FA (v1.4), Dimensions (v1.0), Journals & Payments (v1.0, Parts 1–3).
+**Done this session:** **Sprint 4 — Purchasing & AP 🟢** (solo). Full **procure-to-pay via a Purchase Order**: PO → **Receive** → **Invoice** → **Pay**, with the **Qty. to Receive vs Qty. to Invoice** two-step split traced to the G/L (Dr 5061 / Dr 2641 input VAT / Cr 2441 AP) → payment-journal apply → invoice closed. Plus **purchase Price List** (special price ≥10→90 + line discount ≥5→10% = 810; the **Defines/Amount Type** column), **partial receipt + Undo Receipt** (−4 corrective line, audit trail), and a **Blanket PO → Make Order** call-off. Playbook `ai/guides/purchasing-ap-testing-playbook.md` **v1.0**. **4 of 8 sprints 🟢, ~4.5 wks early.**
 
-**Next task:** **Sprint 3 is 🟢 (done 20 Jul)** — Journals & payments complete (invoices, apply cycles, unapply+reverse, posted bank rec). **Next up = Sprint 4 — Purchasing & AP** (vendor setup already partly done via the Ctest vendor; PO cycle, purchase pricing/discounts). Also open: Sprint 2 **Cost Accounting sketch** (non-exam), FA **LVA + loss disposal**, Lasernet **lease Exercise 2**.
+**🎓 Diagnostic Mock #1 (first ever): 19/25 = 76%** (pass bar ~70%). Heat-map: D1 Setup/Security 80% 🟢 · D2 Financials 71% 🟡 · D3 Sales&Purchasing 83% 🟢 · D4 Operations 71% 🟡. **Key finding: 3 of 6 misses were in "green" hands-on domains** (FA depreciation-netting, dimension Code-Mandatory-vs-Same-Code, reverse-blocked-by-applied) → green ratings are **"operationally green, exam-amber"**: can DO the flows, fumbled the CONCEPT questions under test. Ran a 10-min recall drill that fixed most; **FIFO directionality + Average-cost-period + reverse-blocked-rule still need warming.** Real *content* gap = **inventory costing methods** (→ Sprint 5).
 
-*Note:* Sprints 1 (FA), 2 (Dimensions), 3 (Journals & payments) all 🟢 — **3 of 8 sprints done, well ahead of schedule.** Big side-quest also completed & documented: the full **Subscription Billing** taxonomy + two client setup guides (Subscription Item vs Sales with Subscription).
+**Next task:** **Sprint 5 — Inventory** (item types, **costing methods FIFO/Avg/Standard/Specific front-and-centre**, locations, item journal, transfer order, physical count, adjust cost — trace to G/L). Also carry a light **concept-recall drill habit** (definitions, swapped-pair traps), not just sandbox reps. Mock #2 later per schedule.
 
-**Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — also resolves the open **1267/1269** CONFUSION doc.
+**Open threads:** Cost Accounting sketch (non-exam, Formpipe — w/ Morre); FA **LVA variant** + **loss disposal**; Lasernet **lease Exercise 2** (A5, needs Morre) — resolves the open **1267/1269** CONFUSION doc. Flag for Morre: sandbox **missing Purch. Account** in General Posting Setup (blocks item-line purchase posting) + DOM full-rate VAT completeness.
 
-**Key reference docs:** `ai/reports/mb800-study-schedule_v1.1.md` (sprint tracker) · `ai/reports/mb800-gap-analysis.md` · `ai/guides/*-testing-playbook.md` (FA/WIP/Dimensions) · `FLIGHT-PLAN.md` (v1.2).
+**Key reference docs:** `ai/reports/mb800-study-schedule_v1.1.md` (sprint tracker — Sprint 4 ✅🟢) · `ai/reports/mb800-gap-analysis.md` · `ai/guides/*-testing-playbook.md` (FA/WIP/Dimensions/Journals/**Purchasing-AP**) · `FLIGHT-PLAN.md` (v1.2). Mock #1 key: `scratchpad/mock1-answer-key.md` (session-local).
 
 ---
 
